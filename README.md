@@ -7,8 +7,6 @@ Platforma má umožniť jednoduché vyhľadávanie freelancerov podľa zručnost
 
 Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri môžu prezentovať svoje schopnosti a skúsenosti, zatiaľ čo klienti môžu publikovať projekty s požiadavkami a rozpočtom.
 
----
-
 ## Zber požiadaviek
 
 - RQ01 Systém umožní registrovať nového používateľa.
@@ -26,8 +24,6 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 - RQ13 Systém umožní administrátorovi spravovať používateľov a projekty.
 - RQ14 Systém umožní zobrazovať históriu projektov používateľa.
 
----
-
 ## Slovník pojmov
 
 |Pojem | Anglický názov | Definícia |
@@ -41,8 +37,6 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 | Hodnotenie | Rating | Spätná väzba klienta na freelancera po dokončení projektu. |
 | Profil | Profile | Informácie o používateľovi vrátane zručností, skúseností a hodnotení. |
 | Administrátor | Administrator | Používateľ, ktorý nie je klient, ani freelancer. Má oprávnenia spravovať systém a jeho obsah. |
-
----
 
 ## Use Cases
 
