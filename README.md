@@ -40,7 +40,8 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 
 ## Class diagram
 
-<img width="1271" height="796" alt="class-scheme" src="https://github.com/user-attachments/assets/fa8750eb-1156-4880-99ee-caffffe0ccf7" />
+<img width="1460" height="992" alt="class-scheme" src="https://github.com/user-attachments/assets/328396b7-2585-4c5c-a8a8-5cdf67120745" />
+
 
 ## Use Cases
 
