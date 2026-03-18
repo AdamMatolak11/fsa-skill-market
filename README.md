@@ -38,6 +38,10 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 | Profil | Profile | Informácie o používateľovi vrátane zručností, skúseností a hodnotení. |
 | Administrátor | Administrator | Používateľ, ktorý nie je klient, ani freelancer. Má oprávnenia spravovať systém a jeho obsah. |
 
+## Class diagram
+
+<img width="1271" height="796" alt="class-scheme" src="https://github.com/user-attachments/assets/fa8750eb-1156-4880-99ee-caffffe0ccf7" />
+
 ## Use Cases
 
 ### UC01 – Registrácia používateľa
@@ -120,8 +124,3 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 **Hlavný scenár:**
 1. Používateľ upraví profil  
 2. Systém uloží zmeny
-
-## Class diagram
-
-<img width="1271" height="796" alt="class-scheme" src="https://github.com/user-attachments/assets/fa8750eb-1156-4880-99ee-caffffe0ccf7" />
-
