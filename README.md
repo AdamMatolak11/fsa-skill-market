@@ -125,3 +125,93 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 **Hlavný scenár:**
 1. Používateľ upraví profil  
 2. Systém uloží zmeny
+
+---
+
+## 1. Požiadavky
+
+- Java 25
+- Docker Desktop (bežiaci)
+- Maven Wrapper (`mvnw.cmd` je súčasť repo)
+
+## 2. Prvé spustenie infra (DB + Keycloak)
+
+V koreňovom priečinku projektu:
+
+```powershell
+docker compose up -d
+```
+
+Overenie:
+
+```powershell
+docker compose ps
+```
+
+Služby:
+
+- PostgreSQL: `localhost:5432/skill_market` (`skill_market` / `skill_market`)
+- Keycloak: `http://localhost:8081`
+- Keycloak admin: `admin` / `admin`
+
+## 3. Spustenie aplikácie
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+Aplikácia beží na:
+
+- `http://localhost:8080`
+
+## 4. OpenAPI
+
+- JSON: `http://localhost:8080/v3/api-docs`
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+
+OpenAPI kontrakt je v súbore:
+
+- `src/main/resources/openapi/skill-market-api.yaml`
+
+## 5. Otestovanie zabezpečeného endpointu
+
+Endpoint:
+
+- `GET /api/v1/projects`
+
+Bez tokenu vráti `401`.
+
+### Získanie JWT tokenu (PowerShell)
+
+Príklad pre používateľa `freelancer`:
+
+```powershell
+$token = (Invoke-RestMethod -Method Post `
+  -Uri "http://localhost:8081/realms/skill-market/protocol/openid-connect/token" `
+  -ContentType "application/x-www-form-urlencoded" `
+  -Body "client_id=skill-market-client&grant_type=password&username=freelancer&password=freelancer123").access_token
+```
+
+### Volanie endpointu s tokenom
+
+```powershell
+curl -H "Authorization: Bearer $token" http://localhost:8080/api/v1/projects
+```
+
+## 6. Test používatelia (Keycloak realm import)
+
+- `freelancer` / `freelancer123` (rola `FREELANCER`)
+- `client` / `client123` (rola `CLIENT`)
+- `admin-user` / `admin123` (rola `ADMIN`)
+
+## 7. Vypnutie infra
+
+```powershell
+docker compose down
+```
+
+Ak chceš zmazať aj DB dáta:
+
+```powershell
+docker compose down -v
+```

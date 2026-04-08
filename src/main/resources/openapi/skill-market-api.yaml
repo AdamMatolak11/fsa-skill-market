@@ -1,0 +1,71 @@
+openapi: 3.0.3
+info:
+  title: Skill Market API
+  version: 1.0.0
+  description: API for freelancer and client project management.
+servers:
+  - url: http://localhost:8080
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/projects:
+    get:
+      tags:
+        - Projects
+      operationId: getAllProjects
+      summary: Get all projects
+      description: Returns all projects stored in the database.
+      responses:
+        '200':
+          description: Projects loaded successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectResponse'
+        '401':
+          description: Missing or invalid access token.
+        '403':
+          description: Access token does not have required role.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ProjectResponse:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - budget
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        budget:
+          type: number
+          format: double
+        status:
+          type: string
+          enum:
+            - OPEN
+            - IN_PROGRESS
+            - DONE
+            - CANCELLED
+        createdAt:
+          type: string
+          format: date-time

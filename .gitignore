@@ -1,0 +1,60 @@
+### Build outputs ###
+target/
+build/
+out/
+bin/
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### Logs ###
+*.log
+logs/
+
+### Runtime / temp ###
+*.tmp
+*.temp
+*.pid
+*.seed
+*.swp
+*.swo
+*.bak
+
+### Environment / secrets ###
+.env
+.env.*
+*.local
+
+### Maven ###
+.mvn/timing.properties
+
+### STS / Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+.vscode/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### OS files ###
+.DS_Store
+Thumbs.db
+desktop.ini

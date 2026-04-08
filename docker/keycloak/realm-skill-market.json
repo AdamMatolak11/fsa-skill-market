@@ -1,0 +1,96 @@
+{
+  "realm": "skill-market",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "CLIENT"
+      },
+      {
+        "name": "FREELANCER"
+      },
+      {
+        "name": "ADMIN"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "skill-market-client",
+      "name": "Skill Market Client",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8080/*",
+        "http://localhost:8081/*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "freelancer",
+      "enabled": true,
+      "email": "freelancer@skillmarket.local",
+      "emailVerified": true,
+      "firstName": "Free",
+      "lastName": "Lancer",
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "freelancer123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "FREELANCER"
+      ]
+    },
+    {
+      "username": "client",
+      "enabled": true,
+      "email": "client@skillmarket.local",
+      "emailVerified": true,
+      "firstName": "Cli",
+      "lastName": "Ent",
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "client123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "CLIENT"
+      ]
+    },
+    {
+      "username": "admin-user",
+      "enabled": true,
+      "email": "admin@skillmarket.local",
+      "emailVerified": true,
+      "firstName": "Sys",
+      "lastName": "Admin",
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN"
+      ]
+    }
+  ]
+}
