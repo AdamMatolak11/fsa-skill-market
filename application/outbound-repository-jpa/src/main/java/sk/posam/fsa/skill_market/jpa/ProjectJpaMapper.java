@@ -7,7 +7,7 @@ import sk.posam.fsa.skill_market.domain.project.Project;
 public class ProjectJpaMapper {
 
     public Project toDomain(ProjectJpaEntity entity) {
-        return new Project(
+        return Project.restore(
                 entity.getId(),
                 entity.getTitle(),
                 entity.getDescription(),

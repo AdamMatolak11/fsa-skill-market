@@ -13,7 +13,7 @@ public class ProjectRestMapper {
         response.setTitle(project.title());
         response.setDescription(project.description());
         response.setBudget(project.budget().doubleValue());
-        response.setStatus(ProjectResponse.StatusEnum.fromValue(project.status()));
+        response.setStatus(ProjectResponse.StatusEnum.fromValue(project.status().name()));
         response.setCreatedAt(project.createdAt());
         return response;
     }

@@ -166,9 +166,16 @@ Služby:
 
 ## 3. Spustenie aplikácie
 
+Lokálny workshop režim:
+
 ```powershell
-.\mvnw.cmd -DskipTests package
-java -jar application\springboot\target\springboot-0.0.1-SNAPSHOT.jar
+.\mvnw.cmd -pl application/springboot spring-boot:run
+```
+
+Keycloak profil:
+
+```powershell
+.\mvnw.cmd -pl application/springboot spring-boot:run -Dspring-boot.run.profiles=keycloak
 ```
 
 Aplikácia beží na:
@@ -190,7 +197,9 @@ Endpoint:
 
 - `GET /api/v1/projects`
 
-Bez tokenu vráti `401`.
+V lokálnom workshop režime je endpoint dostupný bez tokenu.
+
+V `keycloak` profile bez tokenu vráti `401`.
 
 ### Získanie JWT tokenu (PowerShell)
 
