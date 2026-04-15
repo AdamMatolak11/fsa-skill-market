@@ -41,6 +41,15 @@ public final class Project {
         return new Project(id, title, description, budget, ProjectStatus.from(status), createdAt);
     }
 
+    public static Project createNew(
+            String title,
+            String description,
+            BigDecimal budget,
+            OffsetDateTime createdAt
+    ) {
+        return new Project(UUID.randomUUID(), title, description, budget, ProjectStatus.OPEN, createdAt);
+    }
+
     public UUID id() {
         return id;
     }

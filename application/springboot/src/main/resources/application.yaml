@@ -12,6 +12,3 @@ spring:
       ddl-auto: none
     mapping-resources:
       - persistence/skill-market-orm.xml
-  sql:
-    init:
-      mode: always
