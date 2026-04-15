@@ -150,7 +150,7 @@ docker compose ps
 
 Služby:
 
-- PostgreSQL: `localhost:5432/skill_market` (`skill_market` / `skill_market`)
+- PostgreSQL: `localhost:5433/skill_market` (`skill_market` / `skill_market`)
 - Keycloak: `http://localhost:8081`
 - Keycloak admin: `admin` / `admin`
 

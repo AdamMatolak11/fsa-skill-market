@@ -2,7 +2,7 @@ spring:
   application:
     name: skill-market
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/skill_market}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/skill_market}
     username: ${DB_USERNAME:skill_market}
     password: ${DB_PASSWORD:skill_market}
     driver-class-name: org.postgresql.Driver
