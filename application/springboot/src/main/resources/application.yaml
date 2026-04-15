@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: skill-market
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/skill_market}
+    username: ${DB_USERNAME:skill_market}
+    password: ${DB_PASSWORD:skill_market}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    mapping-resources:
+      - persistence/skill-market-orm.xml
+  sql:
+    init:
+      mode: always
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8081/realms/skill-market/protocol/openid-connect/certs}

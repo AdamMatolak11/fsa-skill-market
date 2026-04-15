@@ -134,6 +134,16 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 - Docker Desktop (bežiaci)
 - Maven Wrapper (`mvnw.cmd` je súčasť repo)
 
+## 1.1 Architektúra modulov
+
+Projekt je rozdelený na samostatné Maven moduly podľa hexagonálnej architektúry:
+
+- `application/domain` - doména, porty a business služby bez Spring/JPA závislostí
+- `application/api-spec` - OpenAPI kontrakt a generované REST rozhrania a DTO
+- `application/inbound-controller-rest` - inbound REST adaptér, mapping a security
+- `application/outbound-repository-jpa` - outbound JPA adaptér a perzistenčné mapovanie
+- `application/springboot` - bootstrap modul, bean wiring a runtime konfigurácia
+
 ## 2. Prvé spustenie infra (DB + Keycloak)
 
 V koreňovom priečinku projektu:
@@ -157,7 +167,8 @@ Služby:
 ## 3. Spustenie aplikácie
 
 ```powershell
-.\mvnw.cmd spring-boot:run
+.\mvnw.cmd -DskipTests package
+java -jar application\springboot\target\springboot-0.0.1-SNAPSHOT.jar
 ```
 
 Aplikácia beží na:
@@ -171,7 +182,7 @@ Aplikácia beží na:
 
 OpenAPI kontrakt je v súbore:
 
-- `src/main/resources/openapi/skill-market-api.yaml`
+- `application/api-spec/src/main/resources/openapi/skill-market-api.yaml`
 
 ## 5. Otestovanie zabezpečeného endpointu
 
