@@ -3,6 +3,7 @@ package sk.posam.fsa.skill_market.security;
 import java.util.Collection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,7 +15,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-public class SecurityConfiguration {
+@Profile("keycloak")
+public class KeycloakSecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -25,7 +27,10 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/v1/projects/**").hasAnyRole("CLIENT", "FREELANCER", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/projects/**")
+                        .hasAnyRole("CLIENT", "FREELANCER", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/projects/**")
+                        .hasAnyRole("CLIENT", "ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter(keycloakJwtRolesConverter))));

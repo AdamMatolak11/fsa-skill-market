@@ -13,8 +13,8 @@ paths:
       tags:
         - Projects
       operationId: getAllProjects
-      summary: Get all projects
-      description: Returns all projects stored in the database.
+      summary: Get marketplace projects
+      description: Returns projects that are visible in the marketplace.
       responses:
         '200':
           description: Projects loaded successfully.
@@ -28,6 +28,41 @@ paths:
           description: Missing or invalid access token.
         '403':
           description: Access token does not have required role.
+    post:
+      tags:
+        - Projects
+      operationId: createProject
+      summary: Create a new project
+      description: Creates a new project in OPEN state so freelancers can react to it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: Project created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '400':
+          description: Request validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing or invalid access token.
+        '403':
+          description: Access token does not have required role.
+        '409':
+          description: Project with the same title already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   securitySchemes:
     bearerAuth:
@@ -35,6 +70,25 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    CreateProjectRequest:
+      type: object
+      required:
+        - title
+        - description
+        - budget
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        budget:
+          type: number
+          format: double
+          minimum: 0.01
     ProjectResponse:
       type: object
       required:
@@ -64,8 +118,22 @@ components:
           enum:
             - OPEN
             - IN_PROGRESS
-            - DONE
+            - COMPLETED
             - CANCELLED
         createdAt:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - timestamp
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        timestamp:
           type: string
           format: date-time
