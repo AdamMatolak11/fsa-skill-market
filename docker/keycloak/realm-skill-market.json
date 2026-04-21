@@ -3,15 +3,9 @@
   "enabled": true,
   "roles": {
     "realm": [
-      {
-        "name": "CLIENT"
-      },
-      {
-        "name": "FREELANCER"
-      },
-      {
-        "name": "ADMIN"
-      }
+      { "name": "CLIENT" },
+      { "name": "FREELANCER" },
+      { "name": "ADMIN" }
     ]
   },
   "clients": [
@@ -24,16 +18,18 @@
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "serviceAccountsEnabled": false,
-      "redirectUris": [
-        "http://localhost:8080/*",
-        "http://localhost:8081/*"
-      ],
-      "webOrigins": [
-        "*"
-      ],
+      "rootUrl": "http://localhost:4200",
+      "baseUrl": "http://localhost:4200",
+      "adminUrl": "http://localhost:4200",
+      "redirectUris": ["http://localhost:4200/*"],
+      "webOrigins": ["http://localhost:4200"],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:4200/*"
+      },
       "protocol": "openid-connect"
     }
   ],
+
   "users": [
     {
       "username": "freelancer",
@@ -42,7 +38,6 @@
       "emailVerified": true,
       "firstName": "Free",
       "lastName": "Lancer",
-      "requiredActions": [],
       "credentials": [
         {
           "type": "password",
@@ -50,9 +45,9 @@
           "temporary": false
         }
       ],
-      "realmRoles": [
-        "FREELANCER"
-      ]
+      "clientRoles": {
+        "skill-market-client": ["FREELANCER"]
+      }
     },
     {
       "username": "client",
@@ -61,7 +56,6 @@
       "emailVerified": true,
       "firstName": "Cli",
       "lastName": "Ent",
-      "requiredActions": [],
       "credentials": [
         {
           "type": "password",
@@ -69,9 +63,9 @@
           "temporary": false
         }
       ],
-      "realmRoles": [
-        "CLIENT"
-      ]
+      "clientRoles": {
+        "skill-market-client": ["CLIENT"]
+      }
     },
     {
       "username": "admin-user",
@@ -80,7 +74,6 @@
       "emailVerified": true,
       "firstName": "Sys",
       "lastName": "Admin",
-      "requiredActions": [],
       "credentials": [
         {
           "type": "password",
@@ -88,9 +81,9 @@
           "temporary": false
         }
       ],
-      "realmRoles": [
-        "ADMIN"
-      ]
+      "clientRoles": {
+        "skill-market-client": ["ADMIN"]
+      }
     }
   ]
 }
