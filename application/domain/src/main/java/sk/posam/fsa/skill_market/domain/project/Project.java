@@ -8,6 +8,8 @@ import java.util.UUID;
 public final class Project {
 
     private final UUID id;
+    private final UUID clientId;
+    private final UUID assignedFreelancerId;
     private final String title;
     private final String description;
     private final BigDecimal budget;
@@ -16,6 +18,8 @@ public final class Project {
 
     private Project(
             UUID id,
+            UUID clientId,
+            UUID assignedFreelancerId,
             String title,
             String description,
             BigDecimal budget,
@@ -23,6 +27,8 @@ public final class Project {
             OffsetDateTime createdAt
     ) {
         this.id = Objects.requireNonNull(id, "id must not be null");
+        this.clientId = clientId;
+        this.assignedFreelancerId = assignedFreelancerId;
         this.title = normalizeTitle(title);
         this.description = normalizeDescription(description);
         this.budget = normalizeBudget(budget);
@@ -32,26 +38,37 @@ public final class Project {
 
     public static Project restore(
             UUID id,
+            UUID clientId,
+            UUID assignedFreelancerId,
             String title,
             String description,
             BigDecimal budget,
             String status,
             OffsetDateTime createdAt
     ) {
-        return new Project(id, title, description, budget, ProjectStatus.from(status), createdAt);
+        return new Project(id, clientId, assignedFreelancerId, title, description, budget, ProjectStatus.from(status), createdAt);
     }
 
     public static Project createNew(
+            UUID clientId,
             String title,
             String description,
             BigDecimal budget,
             OffsetDateTime createdAt
     ) {
-        return new Project(UUID.randomUUID(), title, description, budget, ProjectStatus.OPEN, createdAt);
+        return new Project(UUID.randomUUID(), clientId, null, title, description, budget, ProjectStatus.OPEN, createdAt);
     }
 
     public UUID id() {
         return id;
+    }
+
+    public UUID clientId() {
+        return clientId;
+    }
+
+    public UUID assignedFreelancerId() {
+        return assignedFreelancerId;
     }
 
     public String title() {
@@ -84,6 +101,36 @@ public final class Project {
 
     public boolean isCompleted() {
         return ProjectStatus.COMPLETED.equals(status);
+    }
+
+    public boolean canBeEdited() {
+        return ProjectStatus.OPEN.equals(status);
+    }
+
+    public boolean canBeCancelled() {
+        return ProjectStatus.OPEN.equals(status);
+    }
+
+    public Project update(String title, String description, BigDecimal budget) {
+        if (!canBeEdited()) {
+            throw new ProjectCannotBeEditedException(id, status);
+        }
+        return new Project(id, clientId, assignedFreelancerId, title, description, budget, status, createdAt);
+    }
+
+    public Project cancel() {
+        if (!canBeCancelled()) {
+            throw new ProjectCannotBeCancelledException(id, status);
+        }
+        return new Project(id, clientId, assignedFreelancerId, title, description, budget, ProjectStatus.CANCELLED, createdAt);
+    }
+
+    public Project start(UUID freelancerId) {
+        Objects.requireNonNull(freelancerId, "freelancerId must not be null");
+        if (!acceptsOffers()) {
+            throw new ProjectNotAcceptingOffersException(id, status);
+        }
+        return new Project(id, clientId, freelancerId, title, description, budget, ProjectStatus.IN_PROGRESS, createdAt);
     }
 
     private static String normalizeTitle(String title) {

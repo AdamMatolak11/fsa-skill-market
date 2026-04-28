@@ -63,6 +63,79 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/projects/{projectId}:
+    put:
+      tags:
+        - Projects
+      operationId: updateProject
+      summary: Update project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectRequest'
+      responses:
+        '200':
+          description: Project updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '400':
+          description: Request validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: User is not allowed to manage this project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Project can no longer be edited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Projects
+      operationId: cancelProject
+      summary: Cancel project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '204':
+          description: Project cancelled successfully.
+        '403':
+          description: User is not allowed to manage this project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Project can no longer be cancelled.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/v1/freelancers:
     get:
       tags:
@@ -144,6 +217,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   /api/v1/projects/{projectId}/offers:
+    get:
+      tags:
+        - Offers
+      operationId: getProjectOffers
+      summary: List project offers
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project offers loaded successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfferResponse'
+        '403':
+          description: User is not allowed to see project offers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
         - Offers
@@ -178,6 +279,98 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Project does not accept offers or user is not a freelancer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/projects/{projectId}/offers/{offerId}:
+    delete:
+      tags:
+        - Offers
+      operationId: deleteOffer
+      summary: Cancel submitted offer
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '204':
+          description: Offer deleted successfully.
+        '404':
+          description: Project or offer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Offer can no longer be cancelled.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/projects/{projectId}/offers/{offerId}/accept:
+    post:
+      tags:
+        - Offers
+      operationId: acceptOffer
+      summary: Accept offer for project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '200':
+          description: Offer accepted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferResponse'
+        '403':
+          description: User is not allowed to manage this project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Project or offer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Project or offer state does not allow accepting the offer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/projects/{projectId}/offers/{offerId}/reject:
+    post:
+      tags:
+        - Offers
+      operationId: rejectOffer
+      summary: Reject offer for project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '200':
+          description: Offer rejected successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferResponse'
+        '403':
+          description: User is not allowed to manage this project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Project or offer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Offer state does not allow rejection.
           content:
             application/json:
               schema:
@@ -237,6 +430,13 @@ components:
       schema:
         type: string
         format: uuid
+    OfferId:
+      name: offerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   securitySchemes:
     bearerAuth:
       type: http
@@ -262,10 +462,30 @@ components:
           type: number
           format: double
           minimum: 0.01
+    UpdateProjectRequest:
+      type: object
+      required:
+        - title
+        - description
+        - budget
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        budget:
+          type: number
+          format: double
+          minimum: 0.01
     ProjectResponse:
       type: object
       required:
         - id
+        - clientId
         - title
         - description
         - budget
@@ -273,6 +493,12 @@ components:
         - createdAt
       properties:
         id:
+          type: string
+          format: uuid
+        clientId:
+          type: string
+          format: uuid
+        assignedFreelancerId:
           type: string
           format: uuid
         title:
@@ -411,6 +637,7 @@ components:
             - PENDING
             - ACCEPTED
             - REJECTED
+            - CANCELLED
         createdAt:
           type: string
           format: date-time

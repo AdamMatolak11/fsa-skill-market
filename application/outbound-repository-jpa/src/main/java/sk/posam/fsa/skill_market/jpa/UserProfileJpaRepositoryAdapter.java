@@ -36,6 +36,12 @@ public class UserProfileJpaRepositoryAdapter implements UserProfileQueryReposito
     }
 
     @Override
+    public Optional<UserProfile> findByEmail(String email) {
+        return userProfileSpringDataRepository.findByEmailIgnoreCase(email)
+                .map(userProfileJpaMapper::toDomain);
+    }
+
+    @Override
     public UserProfile save(UserProfile profile) {
         return userProfileJpaMapper.toDomain(userProfileSpringDataRepository.save(userProfileJpaMapper.toEntity(profile)));
     }

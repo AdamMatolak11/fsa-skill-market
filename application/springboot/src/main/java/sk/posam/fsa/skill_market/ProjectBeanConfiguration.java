@@ -46,10 +46,16 @@ public class ProjectBeanConfiguration {
     @Bean
     public OfferFacade offerFacade(
             ProjectQueryRepository projectQueryRepository,
+            ProjectCommandRepository projectCommandRepository,
             UserProfileQueryRepository userProfileQueryRepository,
             OfferCommandRepository offerCommandRepository
     ) {
-        return new OfferService(projectQueryRepository, userProfileQueryRepository, offerCommandRepository);
+        return new OfferService(
+                projectQueryRepository,
+                projectCommandRepository,
+                userProfileQueryRepository,
+                offerCommandRepository
+        );
     }
 
     @Bean

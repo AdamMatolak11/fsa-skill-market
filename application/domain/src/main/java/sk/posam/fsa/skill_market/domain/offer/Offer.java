@@ -56,6 +56,29 @@ public final class Offer {
     public String message() { return message; }
     public OfferStatus status() { return status; }
     public OffsetDateTime createdAt() { return createdAt; }
+    public boolean canBeCancelled() { return status == OfferStatus.PENDING; }
+    public boolean canBeDecided() { return status == OfferStatus.PENDING; }
+
+    public Offer accept() {
+        if (!canBeDecided()) {
+            throw new IllegalStateException("Offer cannot be accepted in status '" + status + "'");
+        }
+        return new Offer(id, projectId, freelancerId, amount, message, OfferStatus.ACCEPTED, createdAt);
+    }
+
+    public Offer reject() {
+        if (!canBeDecided()) {
+            throw new IllegalStateException("Offer cannot be rejected in status '" + status + "'");
+        }
+        return new Offer(id, projectId, freelancerId, amount, message, OfferStatus.REJECTED, createdAt);
+    }
+
+    public Offer cancel() {
+        if (!canBeCancelled()) {
+            throw new IllegalStateException("Offer cannot be cancelled in status '" + status + "'");
+        }
+        return new Offer(id, projectId, freelancerId, amount, message, OfferStatus.CANCELLED, createdAt);
+    }
 
     private static BigDecimal normalizeAmount(BigDecimal value) {
         Objects.requireNonNull(value, "amount must not be null");

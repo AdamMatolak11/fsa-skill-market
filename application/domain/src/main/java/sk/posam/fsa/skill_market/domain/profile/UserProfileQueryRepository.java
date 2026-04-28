@@ -9,4 +9,6 @@ public interface UserProfileQueryRepository {
     List<UserProfile> findAll();
 
     Optional<UserProfile> findById(UUID userId);
+
+    Optional<UserProfile> findByEmail(String email);
 }

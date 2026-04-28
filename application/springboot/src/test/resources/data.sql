@@ -1,22 +1,3 @@
-INSERT INTO projects (id, title, description, budget, status, created_at)
-VALUES
-    (
-        '2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20',
-        'Spring Boot API',
-        'Implement API endpoint for projects.',
-        1500.00,
-        'OPEN',
-        TIMESTAMP WITH TIME ZONE '2026-01-10 10:15:30+01:00'
-    ),
-    (
-        '44444444-4444-4444-4444-444444444444',
-        'Completed integration cleanup',
-        'Finalize API integration and deployment handover.',
-        1800.00,
-        'COMPLETED',
-        TIMESTAMP WITH TIME ZONE '2026-01-20 10:00:00+01:00'
-    );
-
 INSERT INTO user_profiles (
     id, email, display_name, bio, role, skills_csv, average_rating, rating_count, created_at
 )
@@ -53,4 +34,27 @@ VALUES
         0.00,
         0,
         TIMESTAMP WITH TIME ZONE '2026-01-07 09:00:00+01:00'
+    );
+
+INSERT INTO projects (id, client_id, assigned_freelancer_id, title, description, budget, status, created_at)
+VALUES
+    (
+        '2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20',
+        '11111111-1111-1111-1111-111111111111',
+        NULL,
+        'Spring Boot API',
+        'Implement API endpoint for projects.',
+        1500.00,
+        'OPEN',
+        TIMESTAMP WITH TIME ZONE '2026-01-10 10:15:30+01:00'
+    ),
+    (
+        '44444444-4444-4444-4444-444444444444',
+        '11111111-1111-1111-1111-111111111111',
+        '22222222-2222-2222-2222-222222222222',
+        'Completed integration cleanup',
+        'Finalize API integration and deployment handover.',
+        1800.00,
+        'COMPLETED',
+        TIMESTAMP WITH TIME ZONE '2026-01-20 10:00:00+01:00'
     );

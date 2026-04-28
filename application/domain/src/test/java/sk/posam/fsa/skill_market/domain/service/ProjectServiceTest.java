@@ -21,6 +21,8 @@ class ProjectServiceTest {
     void getAllProjects_returns_only_marketplace_visible_projects_sorted_newest_first() {
         Project olderOpenProject = Project.restore(
                 UUID.randomUUID(),
+                UUID.randomUUID(),
+                null,
                 "Legacy modernization",
                 "Refactor a monolith",
                 BigDecimal.valueOf(3000),
@@ -28,6 +30,8 @@ class ProjectServiceTest {
                 OffsetDateTime.parse("2026-01-10T10:15:30+01:00")
         );
         Project hiddenProject = Project.restore(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
                 UUID.randomUUID(),
                 "Private delivery",
                 "Already assigned work",
@@ -37,6 +41,8 @@ class ProjectServiceTest {
         );
         Project newerOpenProject = Project.restore(
                 UUID.randomUUID(),
+                UUID.randomUUID(),
+                null,
                 "Greenfield portal",
                 "Build the MVP",
                 BigDecimal.valueOf(8000),
@@ -70,6 +76,7 @@ class ProjectServiceTest {
         ProjectService service = new ProjectService(new EmptyProjectQueryRepository(), commandRepository);
 
         Project createdProject = service.createProject(new CreateProjectCommand(
+                UUID.randomUUID(),
                 "Client portal",
                 "Create a new customer portal",
                 BigDecimal.valueOf(2500)
@@ -87,6 +94,7 @@ class ProjectServiceTest {
         ProjectService service = new ProjectService(new EmptyProjectQueryRepository(), commandRepository);
 
         assertThrows(ProjectAlreadyExistsException.class, () -> service.createProject(new CreateProjectCommand(
+                UUID.randomUUID(),
                 "Existing Project",
                 "Duplicate",
                 BigDecimal.valueOf(1000)

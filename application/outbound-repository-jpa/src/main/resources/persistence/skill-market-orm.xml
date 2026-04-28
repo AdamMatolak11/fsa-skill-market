@@ -12,6 +12,12 @@
             <id name="id">
                 <column name="id" nullable="false"/>
             </id>
+            <basic name="clientId">
+                <column name="client_id"/>
+            </basic>
+            <basic name="assignedFreelancerId">
+                <column name="assigned_freelancer_id"/>
+            </basic>
             <basic name="title">
                 <column name="title" nullable="false" length="255"/>
             </basic>

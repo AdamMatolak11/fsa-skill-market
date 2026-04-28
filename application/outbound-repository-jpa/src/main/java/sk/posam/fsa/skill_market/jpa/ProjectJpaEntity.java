@@ -7,6 +7,8 @@ import java.util.UUID;
 public class ProjectJpaEntity {
 
     private UUID id;
+    private UUID clientId;
+    private UUID assignedFreelancerId;
     private String title;
     private String description;
     private BigDecimal budget;
@@ -19,6 +21,22 @@ public class ProjectJpaEntity {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public UUID getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(UUID clientId) {
+        this.clientId = clientId;
+    }
+
+    public UUID getAssignedFreelancerId() {
+        return assignedFreelancerId;
+    }
+
+    public void setAssignedFreelancerId(UUID assignedFreelancerId) {
+        this.assignedFreelancerId = assignedFreelancerId;
     }
 
     public String getTitle() {

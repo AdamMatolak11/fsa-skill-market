@@ -14,6 +14,8 @@ class ProjectTest {
     void restore_rejects_blank_title() {
         assertThrows(IllegalArgumentException.class, () -> Project.restore(
                 UUID.randomUUID(),
+                null,
+                null,
                 "   ",
                 "Valid description",
                 BigDecimal.TEN,
@@ -26,6 +28,8 @@ class ProjectTest {
     void open_project_is_visible_and_accepts_offers() {
         Project project = Project.restore(
                 UUID.randomUUID(),
+                UUID.randomUUID(),
+                null,
                 "API redesign",
                 "Create new project API",
                 BigDecimal.valueOf(1500),
@@ -40,6 +44,8 @@ class ProjectTest {
     @Test
     void in_progress_project_is_not_visible_in_marketplace() {
         Project project = Project.restore(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
                 UUID.randomUUID(),
                 "Mobile app",
                 "Deliver first beta",

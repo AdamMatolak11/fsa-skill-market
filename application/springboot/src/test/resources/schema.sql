@@ -1,5 +1,7 @@
 CREATE TABLE projects (
     id UUID PRIMARY KEY,
+    client_id UUID,
+    assigned_freelancer_id UUID,
     title VARCHAR(255) NOT NULL,
     description VARCHAR(5000) NOT NULL,
     budget NUMERIC(19, 2) NOT NULL,
@@ -43,3 +45,9 @@ CREATE TABLE ratings (
     CONSTRAINT fk_ratings_client FOREIGN KEY (client_id) REFERENCES user_profiles(id),
     CONSTRAINT fk_ratings_freelancer FOREIGN KEY (freelancer_id) REFERENCES user_profiles(id)
 );
+
+ALTER TABLE projects
+    ADD CONSTRAINT fk_projects_client FOREIGN KEY (client_id) REFERENCES user_profiles(id);
+
+ALTER TABLE projects
+    ADD CONSTRAINT fk_projects_assigned_freelancer FOREIGN KEY (assigned_freelancer_id) REFERENCES user_profiles(id);

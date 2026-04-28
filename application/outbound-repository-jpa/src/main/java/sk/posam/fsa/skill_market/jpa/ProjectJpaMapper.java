@@ -9,6 +9,8 @@ public class ProjectJpaMapper {
     public Project toDomain(ProjectJpaEntity entity) {
         return Project.restore(
                 entity.getId(),
+                entity.getClientId(),
+                entity.getAssignedFreelancerId(),
                 entity.getTitle(),
                 entity.getDescription(),
                 entity.getBudget(),
@@ -20,6 +22,8 @@ public class ProjectJpaMapper {
     public ProjectJpaEntity toEntity(Project project) {
         ProjectJpaEntity entity = new ProjectJpaEntity();
         entity.setId(project.id());
+        entity.setClientId(project.clientId());
+        entity.setAssignedFreelancerId(project.assignedFreelancerId());
         entity.setTitle(project.title());
         entity.setDescription(project.description());
         entity.setBudget(project.budget());
