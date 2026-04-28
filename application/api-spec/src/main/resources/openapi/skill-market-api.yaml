@@ -63,7 +63,180 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/freelancers:
+    get:
+      tags:
+        - Freelancers
+      operationId: searchFreelancers
+      summary: Search freelancers
+      description: Returns freelancer profiles and optionally filters them by a skill.
+      parameters:
+        - name: skill
+          in: query
+          required: false
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '200':
+          description: Freelancers loaded successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FreelancerResponse'
+        '401':
+          description: Missing or invalid access token.
+        '403':
+          description: Access token does not have required role.
+  /api/v1/profiles/{userId}:
+    get:
+      tags:
+        - Profiles
+      operationId: getProfile
+      summary: Get user profile
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Profile loaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '404':
+          description: User profile not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Profiles
+      operationId: updateProfile
+      summary: Update user profile
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          description: Request validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User profile not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/projects/{projectId}/offers:
+    post:
+      tags:
+        - Offers
+      operationId: createOffer
+      summary: Submit offer to project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOfferRequest'
+      responses:
+        '201':
+          description: Offer created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferResponse'
+        '400':
+          description: Request validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Project or freelancer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Project does not accept offers or user is not a freelancer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/projects/{projectId}/ratings:
+    post:
+      tags:
+        - Ratings
+      operationId: createRating
+      summary: Rate freelancer for project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRatingRequest'
+      responses:
+        '201':
+          description: Rating created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RatingResponse'
+        '400':
+          description: Request validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Project or user profile not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Project is not completed or target user is not a freelancer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   securitySchemes:
     bearerAuth:
       type: http
@@ -120,6 +293,178 @@ components:
             - IN_PROGRESS
             - COMPLETED
             - CANCELLED
+        createdAt:
+          type: string
+          format: date-time
+    UpdateProfileRequest:
+      type: object
+      required:
+        - displayName
+        - bio
+        - skills
+      properties:
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 255
+        bio:
+          type: string
+          maxLength: 5000
+        skills:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 100
+          uniqueItems: true
+    UserProfileResponse:
+      type: object
+      required:
+        - id
+        - email
+        - displayName
+        - bio
+        - role
+        - skills
+        - averageRating
+        - ratingCount
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+        bio:
+          type: string
+        role:
+          type: string
+          enum:
+            - CLIENT
+            - FREELANCER
+            - ADMIN
+        skills:
+          type: array
+          items:
+            type: string
+        averageRating:
+          type: number
+          format: double
+        ratingCount:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+    FreelancerResponse:
+      allOf:
+        - $ref: '#/components/schemas/UserProfileResponse'
+    CreateOfferRequest:
+      type: object
+      required:
+        - freelancerId
+        - amount
+        - message
+      properties:
+        freelancerId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: double
+          minimum: 0.01
+        message:
+          type: string
+          minLength: 1
+          maxLength: 5000
+    OfferResponse:
+      type: object
+      required:
+        - id
+        - projectId
+        - freelancerId
+        - amount
+        - message
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        freelancerId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: double
+        message:
+          type: string
+        status:
+          type: string
+          enum:
+            - PENDING
+            - ACCEPTED
+            - REJECTED
+        createdAt:
+          type: string
+          format: date-time
+    CreateRatingRequest:
+      type: object
+      required:
+        - clientId
+        - freelancerId
+        - score
+        - comment
+      properties:
+        clientId:
+          type: string
+          format: uuid
+        freelancerId:
+          type: string
+          format: uuid
+        score:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          minLength: 1
+          maxLength: 5000
+    RatingResponse:
+      type: object
+      required:
+        - id
+        - projectId
+        - clientId
+        - freelancerId
+        - score
+        - comment
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        clientId:
+          type: string
+          format: uuid
+        freelancerId:
+          type: string
+          format: uuid
+        score:
+          type: integer
+          format: int32
+        comment:
+          type: string
         createdAt:
           type: string
           format: date-time

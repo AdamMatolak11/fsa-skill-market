@@ -29,4 +29,88 @@
             </basic>
         </attributes>
     </entity>
+    <entity class="sk.posam.fsa.skill_market.jpa.UserProfileJpaEntity" access="FIELD">
+        <table name="user_profiles"/>
+        <attributes>
+            <id name="id">
+                <column name="id" nullable="false"/>
+            </id>
+            <basic name="email">
+                <column name="email" nullable="false" length="255"/>
+            </basic>
+            <basic name="displayName">
+                <column name="display_name" nullable="false" length="255"/>
+            </basic>
+            <basic name="bio">
+                <column name="bio" nullable="false" length="5000"/>
+            </basic>
+            <basic name="role">
+                <column name="role" nullable="false" length="20"/>
+            </basic>
+            <basic name="skillsCsv">
+                <column name="skills_csv" nullable="false" length="2000"/>
+            </basic>
+            <basic name="averageRating">
+                <column name="average_rating" nullable="false" precision="3" scale="2"/>
+            </basic>
+            <basic name="ratingCount">
+                <column name="rating_count" nullable="false"/>
+            </basic>
+            <basic name="createdAt">
+                <column name="created_at" nullable="false"/>
+            </basic>
+        </attributes>
+    </entity>
+    <entity class="sk.posam.fsa.skill_market.jpa.OfferJpaEntity" access="FIELD">
+        <table name="offers"/>
+        <attributes>
+            <id name="id">
+                <column name="id" nullable="false"/>
+            </id>
+            <basic name="projectId">
+                <column name="project_id" nullable="false"/>
+            </basic>
+            <basic name="freelancerId">
+                <column name="freelancer_id" nullable="false"/>
+            </basic>
+            <basic name="amount">
+                <column name="amount" nullable="false" precision="19" scale="2"/>
+            </basic>
+            <basic name="message">
+                <column name="message" nullable="false" length="5000"/>
+            </basic>
+            <basic name="status">
+                <column name="status" nullable="false" length="20"/>
+            </basic>
+            <basic name="createdAt">
+                <column name="created_at" nullable="false"/>
+            </basic>
+        </attributes>
+    </entity>
+    <entity class="sk.posam.fsa.skill_market.jpa.RatingJpaEntity" access="FIELD">
+        <table name="ratings"/>
+        <attributes>
+            <id name="id">
+                <column name="id" nullable="false"/>
+            </id>
+            <basic name="projectId">
+                <column name="project_id" nullable="false"/>
+            </basic>
+            <basic name="clientId">
+                <column name="client_id" nullable="false"/>
+            </basic>
+            <basic name="freelancerId">
+                <column name="freelancer_id" nullable="false"/>
+            </basic>
+            <basic name="score">
+                <column name="score" nullable="false"/>
+            </basic>
+            <basic name="comment">
+                <column name="comment" nullable="false" length="5000"/>
+            </basic>
+            <basic name="createdAt">
+                <column name="created_at" nullable="false"/>
+            </basic>
+        </attributes>
+    </entity>
 </entity-mappings>

@@ -1,6 +1,8 @@
 package sk.posam.fsa.skill_market.jpa;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import sk.posam.fsa.skill_market.domain.project.Project;
 import sk.posam.fsa.skill_market.domain.project.ProjectCommandRepository;
@@ -25,6 +27,12 @@ public class ProjectJpaRepositoryAdapter implements ProjectQueryRepository, Proj
         return projectSpringDataRepository.findAll().stream()
                 .map(projectJpaMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<Project> findById(UUID projectId) {
+        return projectSpringDataRepository.findById(projectId)
+                .map(projectJpaMapper::toDomain);
     }
 
     @Override

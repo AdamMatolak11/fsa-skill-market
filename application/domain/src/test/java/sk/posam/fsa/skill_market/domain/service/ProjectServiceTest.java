@@ -3,6 +3,7 @@ package sk.posam.fsa.skill_market.domain.service;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import sk.posam.fsa.skill_market.domain.project.CreateProjectCommand;
@@ -43,8 +44,19 @@ class ProjectServiceTest {
                 OffsetDateTime.parse("2026-03-10T10:15:30+01:00")
         );
 
-        ProjectQueryRepository repository = () -> List.of(olderOpenProject, hiddenProject, newerOpenProject);
+        ProjectQueryRepository repository = new ProjectQueryRepository() {
+            @Override
+            public List<Project> findAll() {
+                return List.of(olderOpenProject, hiddenProject, newerOpenProject);
+            }
 
+            @Override
+            public Optional<Project> findById(UUID projectId) {
+                return List.of(olderOpenProject, hiddenProject, newerOpenProject).stream()
+                        .filter(project -> project.id().equals(projectId))
+                        .findFirst();
+            }
+        };
         ProjectCommandRepository commandRepository = new InMemoryProjectCommandRepository();
 
         ProjectService service = new ProjectService(repository, commandRepository);
@@ -55,7 +67,7 @@ class ProjectServiceTest {
     @Test
     void createProject_setsOpenStatusAndPersistsProject() {
         InMemoryProjectCommandRepository commandRepository = new InMemoryProjectCommandRepository();
-        ProjectService service = new ProjectService(List::of, commandRepository);
+        ProjectService service = new ProjectService(new EmptyProjectQueryRepository(), commandRepository);
 
         Project createdProject = service.createProject(new CreateProjectCommand(
                 "Client portal",
@@ -72,7 +84,7 @@ class ProjectServiceTest {
     void createProject_rejectsDuplicateTitle() {
         InMemoryProjectCommandRepository commandRepository = new InMemoryProjectCommandRepository();
         commandRepository.existingTitle = "Existing Project";
-        ProjectService service = new ProjectService(List::of, commandRepository);
+        ProjectService service = new ProjectService(new EmptyProjectQueryRepository(), commandRepository);
 
         assertThrows(ProjectAlreadyExistsException.class, () -> service.createProject(new CreateProjectCommand(
                 "Existing Project",
@@ -94,6 +106,18 @@ class ProjectServiceTest {
         public Project save(Project project) {
             this.savedProject = project;
             return project;
+        }
+    }
+
+    private static final class EmptyProjectQueryRepository implements ProjectQueryRepository {
+        @Override
+        public List<Project> findAll() {
+            return List.of();
+        }
+
+        @Override
+        public Optional<Project> findById(UUID userId) {
+            return Optional.empty();
         }
     }
 }

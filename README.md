@@ -166,16 +166,22 @@ Služby:
 
 ## 3. Spustenie aplikácie
 
+Najprv je potrebné zostaviť a nainštalovať všetky moduly do lokálneho Maven repozitára:
+
+```powershell
+.\mvnw.cmd install -DskipTests
+```
+
 Lokálny workshop režim:
 
 ```powershell
-.\mvnw.cmd -pl application/springboot spring-boot:run
+.\mvnw.cmd -f application/springboot/pom.xml spring-boot:run
 ```
 
 Keycloak profil:
 
 ```powershell
-.\mvnw.cmd -pl application/springboot spring-boot:run -Dspring-boot.run.profiles=keycloak
+.\mvnw.cmd -f application/springboot/pom.xml spring-boot:run -Dspring-boot.run.profiles=keycloak
 ```
 
 Aplikácia beží na:

@@ -82,6 +82,10 @@ public final class Project {
         return status.acceptsOffers();
     }
 
+    public boolean isCompleted() {
+        return ProjectStatus.COMPLETED.equals(status);
+    }
+
     private static String normalizeTitle(String title) {
         String normalized = requireText(title, "title");
         if (normalized.length() > 255) {
