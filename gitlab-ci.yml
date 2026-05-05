@@ -9,7 +9,6 @@ variables:
   DOCKER_TLS_VERIFY: ""
   DOCKER_TLS_CERTDIR: ""
 
-
 build:
   stage: build
   tags:
