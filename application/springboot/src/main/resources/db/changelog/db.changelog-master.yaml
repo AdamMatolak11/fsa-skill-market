@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-projects-table
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/migration/V1__create_projects_table.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: 002-seed-projects
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/migration/V2__seed_projects.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: 003-create-marketplace-support-tables
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/migration/V3__create_marketplace_support_tables.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: 004-seed-profiles-and-completed-project
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/migration/V4__seed_profiles_and_completed_project.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: 005-add-project-ownership-columns
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/migration/V5__add_project_ownership_columns.sql
+            relativeToChangelogFile: false
