@@ -230,6 +230,10 @@ curl -H "Authorization: Bearer $token" http://localhost:8080/api/v1/projects
 - `client` / `client123` (rola `CLIENT`)
 - `admin-user` / `admin123` (rola `ADMIN`)
 
+### Cloud Keycloak používatelia:
+- `client@keycloak.com` / `client123`
+- `freelancer@keycloak.com` / `freelancer123`
+
 ## 7. Vypnutie infra
 
 ```powershell
