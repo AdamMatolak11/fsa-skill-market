@@ -42,3 +42,10 @@ databaseChangeLog:
         - sqlFile:
             path: db/migration/V6__seed_more_user_profiles.sql
             relativeToChangelogFile: false
+  - changeSet:
+      id: 007-seed-missing-user-profile
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/migration/V7__seed_missing_user_profile.sql
+            relativeToChangelogFile: false
