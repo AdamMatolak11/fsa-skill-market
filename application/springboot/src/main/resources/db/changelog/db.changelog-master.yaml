@@ -35,3 +35,10 @@ databaseChangeLog:
             path: db/migration/V5__add_project_ownership_columns.sql
             relativeToChangelogFile: false
             splitStatements: false
+  - changeSet:
+      id: 006-seed-more-user-profiles
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/migration/V6__seed_more_user_profiles.sql
+            relativeToChangelogFile: false

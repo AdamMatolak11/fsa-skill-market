@@ -86,6 +86,10 @@ class ProjectApiIntegrationTest {
         mockMvc.perform(get("/api/v1/freelancers").param("skill", "java"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[*].email", hasItem("freelancer@skillmarket.local")));
+
+        mockMvc.perform(get("/api/v1/freelancers").param("skill", "react"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].email", hasItem("asmith@skillmarket.local")));
     }
 
     @Test
