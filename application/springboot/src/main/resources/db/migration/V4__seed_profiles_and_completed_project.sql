@@ -33,7 +33,8 @@ INSERT INTO user_profiles (
         0.00,
         0,
         TIMESTAMP WITH TIME ZONE '2026-01-07 09:00:00+01:00'
-    );
+    )
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO projects (
     id, title, description, budget, status, created_at
@@ -44,4 +45,5 @@ INSERT INTO projects (
     1800.00,
     'COMPLETED',
     TIMESTAMP WITH TIME ZONE '2026-01-20 10:00:00+01:00'
-);
+)
+ON CONFLICT (id) DO NOTHING;

@@ -6,4 +6,5 @@ VALUES (
     1500.00,
     'OPEN',
     NOW()
-);
+)
+ON CONFLICT (id) DO NOTHING;

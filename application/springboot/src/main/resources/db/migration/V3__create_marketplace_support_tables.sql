@@ -1,4 +1,4 @@
-CREATE TABLE user_profiles (
+CREATE TABLE IF NOT EXISTS user_profiles (
     id UUID PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     display_name VARCHAR(255) NOT NULL,
@@ -10,9 +10,9 @@ CREATE TABLE user_profiles (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE UNIQUE INDEX uk_user_profiles_email_lower ON user_profiles (LOWER(email));
+CREATE UNIQUE INDEX IF NOT EXISTS uk_user_profiles_email_lower ON user_profiles (LOWER(email));
 
-CREATE TABLE offers (
+CREATE TABLE IF NOT EXISTS offers (
     id UUID PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES projects(id),
     freelancer_id UUID NOT NULL REFERENCES user_profiles(id),
@@ -22,7 +22,7 @@ CREATE TABLE offers (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE TABLE ratings (
+CREATE TABLE IF NOT EXISTS ratings (
     id UUID PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES projects(id),
     client_id UUID NOT NULL REFERENCES user_profiles(id),
