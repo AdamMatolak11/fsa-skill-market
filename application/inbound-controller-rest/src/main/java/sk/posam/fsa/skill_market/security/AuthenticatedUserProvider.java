@@ -6,8 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,8 +18,6 @@ import sk.posam.fsa.skill_market.domain.profile.UserProfileQueryRepository;
 
 @Component
 public class AuthenticatedUserProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(AuthenticatedUserProvider.class);
 
     private final UserProfileQueryRepository userProfileQueryRepository;
     private final UserProfileCommandRepository userProfileCommandRepository;
@@ -42,7 +38,6 @@ public class AuthenticatedUserProvider {
 
         String email = resolveEmail(authentication);
         if (email == null || email.isBlank()) {
-            log.warn("Could not resolve email from authentication: {}", authentication);
             return Optional.empty();
         }
 
@@ -56,7 +51,6 @@ public class AuthenticatedUserProvider {
     }
 
     private Optional<UserProfile> provisionNewUser(Authentication authentication, String email) {
-        log.info("Provisioning new user for email: {}", email);
         if (authentication.getPrincipal() instanceof Jwt jwt) {
             String displayName = jwt.getClaimAsString("name");
             if (displayName == null || displayName.isBlank()) {
@@ -79,10 +73,8 @@ public class AuthenticatedUserProvider {
                     OffsetDateTime.now()
             );
 
-            log.info("Saving new profile for {} with role {}", email, role);
             return Optional.of(userProfileCommandRepository.save(newProfile));
         }
-        log.warn("Authentication principal is not a Jwt: {}", authentication.getPrincipal().getClass());
         return Optional.empty();
     }
 

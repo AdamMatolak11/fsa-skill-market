@@ -8,28 +8,20 @@ import sk.posam.fsa.skill_market.mapper.ProfileRestMapper;
 import sk.posam.fsa.skill_market.rest.api.ProfilesApi;
 import sk.posam.fsa.skill_market.rest.dto.UpdateProfileRequest;
 import sk.posam.fsa.skill_market.rest.dto.UserProfileResponse;
-import sk.posam.fsa.skill_market.security.AuthenticatedUserProvider;
 
 @RestController
 public class ProfileRestController implements ProfilesApi {
 
     private final ProfileFacade profileFacade;
     private final ProfileRestMapper profileRestMapper;
-    private final AuthenticatedUserProvider authenticatedUserProvider;
 
-    public ProfileRestController(
-            ProfileFacade profileFacade,
-            ProfileRestMapper profileRestMapper,
-            AuthenticatedUserProvider authenticatedUserProvider
-    ) {
+    public ProfileRestController(ProfileFacade profileFacade, ProfileRestMapper profileRestMapper) {
         this.profileFacade = profileFacade;
         this.profileRestMapper = profileRestMapper;
-        this.authenticatedUserProvider = authenticatedUserProvider;
     }
 
     @Override
     public ResponseEntity<UserProfileResponse> getProfile(UUID userId) {
-        authenticatedUserProvider.currentUser(); // Trigger JIT provisioning
         return ResponseEntity.ok(profileRestMapper.toResponse(profileFacade.getProfile(userId)));
     }
 
