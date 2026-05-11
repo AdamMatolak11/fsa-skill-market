@@ -224,15 +224,12 @@ $token = (Invoke-RestMethod -Method Post `
 curl -H "Authorization: Bearer $token" http://localhost:8080/api/v1/projects
 ```
 
-## 6. Test používatelia (Keycloak realm import)
+## 6. Testovacie údaje
 
+### Test používatelia:
 - `freelancer` / `freelancer123` (rola `FREELANCER`)
 - `client` / `client123` (rola `CLIENT`)
 - `admin-user` / `admin123` (rola `ADMIN`)
-
-### Cloud Keycloak používatelia:
-- `client@keycloak.com` / `client123`
-- `freelancer@keycloak.com` / `freelancer123`
 
 ## 7. Vypnutie infra
 
