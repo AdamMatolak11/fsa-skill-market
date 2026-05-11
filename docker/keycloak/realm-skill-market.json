@@ -1,6 +1,12 @@
 {
   "realm": "skill-market",
   "enabled": true,
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "rememberMe": true,
+  "verifyEmail": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
   "roles": {
     "realm": [
       { "name": "CLIENT" },

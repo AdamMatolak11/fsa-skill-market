@@ -109,6 +109,14 @@ class ProjectApiIntegrationTest {
     }
 
     @Test
+    void getProfile_returnsMissingProfile() throws Exception {
+        mockMvc.perform(get("/api/v1/profiles/70c2b1c0-01d7-4f8f-a454-b0fd462ec2f7"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("70c2b1c0-01d7-4f8f-a454-b0fd462ec2f7"))
+                .andExpect(jsonPath("$.displayName").value("Charlie Green"));
+    }
+
+    @Test
     void createOffer_returnsCreatedOffer() throws Exception {
         mockMvc.perform(post("/api/v1/projects/2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20/offers")
                         .contentType(MediaType.APPLICATION_JSON)
