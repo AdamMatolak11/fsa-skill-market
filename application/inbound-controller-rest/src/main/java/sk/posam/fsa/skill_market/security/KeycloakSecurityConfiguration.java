@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -21,7 +22,8 @@ public class KeycloakSecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            Converter<Jwt, Collection<GrantedAuthority>> keycloakJwtRolesConverter
+            Converter<Jwt, Collection<GrantedAuthority>> keycloakJwtRolesConverter,
+            AuthenticatedUserSyncFilter authenticatedUserSyncFilter
     ) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -43,6 +45,7 @@ public class KeycloakSecurityConfiguration {
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/projects/*/ratings")
                         .hasAnyRole("CLIENT", "ADMIN")
                         .anyRequest().authenticated())
+                .addFilterAfter(authenticatedUserSyncFilter, BearerTokenAuthenticationFilter.class)
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter(keycloakJwtRolesConverter))));
         return http.build();
