@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import sk.posam.fsa.skill_market.domain.offer.OfferCannotBeCancelledException;
 import sk.posam.fsa.skill_market.domain.offer.OfferCannotBeDecidedException;
 import sk.posam.fsa.skill_market.domain.offer.OfferNotFoundException;
+import sk.posam.fsa.skill_market.domain.profile.UserAlreadyExistsException;
 import sk.posam.fsa.skill_market.domain.profile.UserProfileNotFoundException;
 import sk.posam.fsa.skill_market.domain.profile.UserProfileNotFreelancerException;
 import sk.posam.fsa.skill_market.domain.project.ProjectAlreadyExistsException;
@@ -27,6 +28,12 @@ public class ApiErrorHandler {
     public ResponseEntity<ErrorResponse> handleProjectAlreadyExists(ProjectAlreadyExistsException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(error("PROJECT_ALREADY_EXISTS", exception.getMessage()));
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(error("USER_ALREADY_EXISTS", exception.getMessage()));
     }
 
     @ExceptionHandler({

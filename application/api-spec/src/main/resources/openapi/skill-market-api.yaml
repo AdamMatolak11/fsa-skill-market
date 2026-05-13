@@ -8,6 +8,39 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /api/v1/registrations:
+    post:
+      tags:
+        - Registrations
+      operationId: registerUser
+      summary: Register a new user
+      description: Creates a new Keycloak user, assigns the selected marketplace role and persists the local user profile.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        '201':
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          description: Request validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: User with the same email already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/v1/projects:
     get:
       tags:
@@ -543,6 +576,35 @@ components:
             minLength: 1
             maxLength: 100
           uniqueItems: true
+    RegisterUserRequest:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+        - role
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 255
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 255
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 255
+        role:
+          type: string
+          enum:
+            - CLIENT
+            - FREELANCER
     UserProfileResponse:
       type: object
       required:

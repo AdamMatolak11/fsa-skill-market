@@ -109,6 +109,29 @@ class ProjectApiIntegrationTest {
     }
 
     @Test
+    void registerUser_createsProfileWithSelectedRole() throws Exception {
+        String email = "new.user+" + UUID.randomUUID() + "@skillmarket.local";
+
+        mockMvc.perform(post("/api/v1/registrations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "email": "%s",
+                                  "password": "supersecret123",
+                                  "firstName": "New",
+                                  "lastName": "Freelancer",
+                                  "role": "FREELANCER"
+                                }
+                                """.formatted(email)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.email").value(email.toLowerCase()))
+                .andExpect(jsonPath("$.displayName").value("New Freelancer"))
+                .andExpect(jsonPath("$.role").value("FREELANCER"))
+                .andExpect(jsonPath("$.skills").isArray());
+    }
+
+    @Test
     void createOffer_returnsCreatedOffer() throws Exception {
         mockMvc.perform(post("/api/v1/projects/2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20/offers")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -19,6 +19,7 @@ public class KeycloakJwtRolesConverter implements Converter<Jwt, Collection<Gran
     public Collection<GrantedAuthority> convert(Jwt jwt) {
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.addAll(extractRealmRoles(jwt));
+        authorities.addAll(extractClientRoles(jwt));
         return authorities;
     }
 
@@ -41,5 +42,35 @@ public class KeycloakJwtRolesConverter implements Converter<Jwt, Collection<Gran
                 .map(role -> new SimpleGrantedAuthority(ROLE_PREFIX + role))
                 .map(GrantedAuthority.class::cast)
                 .toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private Collection<GrantedAuthority> extractClientRoles(Jwt jwt) {
+        Object resourceAccess = jwt.getClaim("resource_access");
+        if (!(resourceAccess instanceof Map<?, ?> resourceAccessMap)) {
+            return List.of();
+        }
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (Object clientAccessValue : resourceAccessMap.values()) {
+            if (!(clientAccessValue instanceof Map<?, ?> clientAccess)) {
+                continue;
+            }
+
+            Object roles = clientAccess.get("roles");
+            if (!(roles instanceof Collection<?> roleNames)) {
+                continue;
+            }
+
+            for (Object roleName : roleNames) {
+                if (roleName instanceof String role) {
+                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority(ROLE_PREFIX + role.toUpperCase());
+                    if (!authorities.contains(authority)) {
+                        authorities.add(authority);
+                    }
+                }
+            }
+        }
+        return authorities;
     }
 }

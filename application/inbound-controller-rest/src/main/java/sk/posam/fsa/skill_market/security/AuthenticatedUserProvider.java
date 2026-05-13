@@ -8,16 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
-import sk.posam.fsa.skill_market.domain.profile.UserProfileQueryRepository;
 
 @Component
 public class AuthenticatedUserProvider {
-
-    private final UserProfileQueryRepository userProfileQueryRepository;
-
-    public AuthenticatedUserProvider(UserProfileQueryRepository userProfileQueryRepository) {
-        this.userProfileQueryRepository = userProfileQueryRepository;
-    }
 
     public Optional<AuthenticatedUser> currentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -30,16 +23,20 @@ public class AuthenticatedUserProvider {
             return Optional.empty();
         }
 
-        return userProfileQueryRepository.findByEmail(email)
-                .map(profile -> new AuthenticatedUser(
-                        profile.id(),
-                        profile.email(),
-                        authentication.getAuthorities().stream()
-                                .map(grantedAuthority -> grantedAuthority.getAuthority())
-                                .filter(authority -> authority.startsWith("ROLE_"))
-                                .map(authority -> authority.substring(5))
-                                .collect(java.util.stream.Collectors.toUnmodifiableSet())
-                ));
+        UUID userId = resolveUserId(authentication);
+        if (userId == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new AuthenticatedUser(
+                userId,
+                email,
+                authentication.getAuthorities().stream()
+                        .map(grantedAuthority -> grantedAuthority.getAuthority())
+                        .filter(authority -> authority.startsWith("ROLE_"))
+                        .map(authority -> authority.substring(5))
+                        .collect(java.util.stream.Collectors.toUnmodifiableSet())
+        ));
     }
 
     private String resolveEmail(Authentication authentication) {
@@ -50,6 +47,18 @@ public class AuthenticatedUserProvider {
                 return email;
             }
             return jwt.getClaimAsString("preferred_username");
+        }
+        return null;
+    }
+
+    private UUID resolveUserId(Authentication authentication) {
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof Jwt jwt) {
+            String subject = jwt.getSubject();
+            if (subject == null || subject.isBlank()) {
+                return null;
+            }
+            return UUID.fromString(subject);
         }
         return null;
     }

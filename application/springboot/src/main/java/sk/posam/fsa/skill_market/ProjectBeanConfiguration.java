@@ -18,6 +18,9 @@ import sk.posam.fsa.skill_market.domain.service.ProjectFacade;
 import sk.posam.fsa.skill_market.domain.service.ProjectService;
 import sk.posam.fsa.skill_market.domain.service.RatingFacade;
 import sk.posam.fsa.skill_market.domain.service.RatingService;
+import sk.posam.fsa.skill_market.domain.registration.IdentityRegistrationGateway;
+import sk.posam.fsa.skill_market.domain.service.RegistrationFacade;
+import sk.posam.fsa.skill_market.domain.service.RegistrationService;
 
 @Configuration
 public class ProjectBeanConfiguration {
@@ -41,6 +44,19 @@ public class ProjectBeanConfiguration {
             UserProfileCommandRepository userProfileCommandRepository
     ) {
         return new ProfileService(userProfileQueryRepository, userProfileCommandRepository);
+    }
+
+    @Bean
+    public RegistrationFacade registrationFacade(
+            UserProfileQueryRepository userProfileQueryRepository,
+            UserProfileCommandRepository userProfileCommandRepository,
+            IdentityRegistrationGateway identityRegistrationGateway
+    ) {
+        return new RegistrationService(
+                userProfileQueryRepository,
+                userProfileCommandRepository,
+                identityRegistrationGateway
+        );
     }
 
     @Bean

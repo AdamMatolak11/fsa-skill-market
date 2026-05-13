@@ -66,6 +66,27 @@ public final class UserProfile {
         );
     }
 
+    public static UserProfile createNew(
+            UUID id,
+            String email,
+            String displayName,
+            UserRole role,
+            Set<String> skills,
+            OffsetDateTime createdAt
+    ) {
+        return new UserProfile(
+                id,
+                email,
+                displayName,
+                "",
+                role,
+                skills,
+                BigDecimal.ZERO,
+                0,
+                createdAt
+        );
+    }
+
     public UUID id() {
         return id;
     }

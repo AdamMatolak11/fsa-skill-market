@@ -27,6 +27,7 @@ public class KeycloakSecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/registrations").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/freelancers/**", "/api/v1/profiles/**")
                         .hasAnyRole("CLIENT", "FREELANCER", "ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/projects/**")

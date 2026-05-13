@@ -4,3 +4,12 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8081/realms/skill-market/protocol/openid-connect/certs}
+app:
+  keycloak:
+    base-url: ${KEYCLOAK_BASE_URL:http://localhost:8081}
+    realm: ${KEYCLOAK_REALM:skill-market}
+    client-id: ${KEYCLOAK_CLIENT_ID:skill-market-client}
+    admin-realm: ${KEYCLOAK_ADMIN_REALM:master}
+    admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
+    admin-username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+    admin-password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
