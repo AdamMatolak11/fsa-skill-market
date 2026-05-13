@@ -10,6 +10,8 @@ import sk.posam.fsa.skill_market.domain.project.ProjectQueryRepository;
 import sk.posam.fsa.skill_market.domain.rating.RatingCommandRepository;
 import sk.posam.fsa.skill_market.domain.service.FreelancerFacade;
 import sk.posam.fsa.skill_market.domain.service.FreelancerService;
+import sk.posam.fsa.skill_market.domain.service.IdentityUserSyncFacade;
+import sk.posam.fsa.skill_market.domain.service.IdentityUserSyncService;
 import sk.posam.fsa.skill_market.domain.service.OfferFacade;
 import sk.posam.fsa.skill_market.domain.service.OfferService;
 import sk.posam.fsa.skill_market.domain.service.ProfileFacade;
@@ -44,6 +46,14 @@ public class ProjectBeanConfiguration {
             UserProfileCommandRepository userProfileCommandRepository
     ) {
         return new ProfileService(userProfileQueryRepository, userProfileCommandRepository);
+    }
+
+    @Bean
+    public IdentityUserSyncFacade identityUserSyncFacade(
+            UserProfileQueryRepository userProfileQueryRepository,
+            UserProfileCommandRepository userProfileCommandRepository
+    ) {
+        return new IdentityUserSyncService(userProfileQueryRepository, userProfileCommandRepository);
     }
 
     @Bean

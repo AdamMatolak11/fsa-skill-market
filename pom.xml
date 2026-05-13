@@ -20,6 +20,7 @@
         <java.version>25</java.version>
         <openapi-generator-maven-plugin.version>7.15.0</openapi-generator-maven-plugin.version>
         <archunit.version>1.4.1</archunit.version>
+        <keycloak.version>26.5.5</keycloak.version>
     </properties>
 
     <modules>

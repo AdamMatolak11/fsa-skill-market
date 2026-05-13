@@ -1,6 +1,7 @@
 {
   "realm": "skill-market",
   "enabled": true,
+  "registrationAllowed": true,
   "roles": {
     "realm": [
       { "name": "CLIENT" },
