@@ -2,6 +2,7 @@ package sk.posam.fsa.skill_market;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestClient;
 import sk.posam.fsa.skill_market.domain.offer.OfferCommandRepository;
 import sk.posam.fsa.skill_market.domain.profile.UserProfileCommandRepository;
 import sk.posam.fsa.skill_market.domain.profile.UserProfileQueryRepository;
@@ -26,6 +27,11 @@ import sk.posam.fsa.skill_market.domain.service.RegistrationService;
 
 @Configuration
 public class ProjectBeanConfiguration {
+
+    @Bean
+    public RestClient.Builder restClientBuilder() {
+        return RestClient.builder();
+    }
 
     @Bean
     public ProjectFacade projectFacade(
