@@ -1,4 +1,5 @@
 stages:
+  - test
   - build
   - deploy
 
@@ -24,6 +25,16 @@ build:
     - docker build -t "$ACR_REGISTRY/$IMAGE_NAME:$IMAGE_VERSION" -t "$ACR_REGISTRY/$IMAGE_NAME:latest" .
     - docker push "$ACR_REGISTRY/$IMAGE_NAME:$IMAGE_VERSION"
     - docker push "$ACR_REGISTRY/$IMAGE_NAME:latest"
+  only:
+    - main
+
+test:
+  stage: test
+  image: maven:3.9-eclipse-temurin-25
+  script:
+    - mvn test
+  tags:
+    - fsa-matolak
   only:
     - main
 

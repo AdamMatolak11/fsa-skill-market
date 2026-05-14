@@ -1,5 +1,5 @@
 FROM maven:3.9-eclipse-temurin-25 as builder
-LABEL Matolak Adam <adam.matolak@outlook.sk>
+LABEL maintainer="Matolak Adam <adam.matolak@outlook.sk>"
 
 WORKDIR /application
 
@@ -10,7 +10,7 @@ COPY pom.xml .
 # 14.15 [ERROR] Child module /application/application/domain of /application/pom.xml does not exist
 COPY application application
 
-RUN mvn package
+RUN mvn package -DskipTests
 RUN mkdir build && cd build && java -Djarmode=layertools -jar ../application/springboot/target/*.jar extract
 
 FROM eclipse-temurin:25-jdk-alpine
