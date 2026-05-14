@@ -6,7 +6,7 @@ public enum ProjectStatus {
     OPEN(true, true),
     IN_PROGRESS(false, true),
     COMPLETED(false, true),
-    CANCELLED(false, false);
+    CANCELLED(false, true);
 
     private final boolean acceptsOffers;
     private final boolean visibleInMarketplace;

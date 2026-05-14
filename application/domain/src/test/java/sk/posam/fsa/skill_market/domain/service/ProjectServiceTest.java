@@ -59,16 +59,26 @@ class ProjectServiceTest {
                 "CANCELLED",
                 OffsetDateTime.parse("2026-04-10T10:15:30+01:00")
         );
+        Project completedProject = Project.restore(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "Completed project",
+                "Finished work",
+                BigDecimal.valueOf(5000),
+                "COMPLETED",
+                OffsetDateTime.parse("2026-05-10T10:15:30+01:00")
+        );
 
         ProjectQueryRepository repository = new ProjectQueryRepository() {
             @Override
             public List<Project> findAll() {
-                return List.of(olderOpenProject, inProgressProject, newerOpenProject, cancelledProject);
+                return List.of(olderOpenProject, inProgressProject, newerOpenProject, cancelledProject, completedProject);
             }
 
             @Override
             public Optional<Project> findById(UUID projectId) {
-                return List.of(olderOpenProject, inProgressProject, newerOpenProject, cancelledProject).stream()
+                return List.of(olderOpenProject, inProgressProject, newerOpenProject, cancelledProject, completedProject).stream()
                         .filter(project -> project.id().equals(projectId))
                         .findFirst();
             }
@@ -77,7 +87,7 @@ class ProjectServiceTest {
 
         ProjectService service = new ProjectService(repository, commandRepository);
 
-        assertEquals(List.of(newerOpenProject, inProgressProject, olderOpenProject), service.getAllProjects());
+        assertEquals(List.of(completedProject, cancelledProject, newerOpenProject, inProgressProject, olderOpenProject), service.getAllProjects());
     }
 
     @Test
