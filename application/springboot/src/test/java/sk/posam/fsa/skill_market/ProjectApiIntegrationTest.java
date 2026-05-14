@@ -29,7 +29,24 @@ class ProjectApiIntegrationTest {
     void getAllProjects_returnsMarketplaceProjects() throws Exception {
         mockMvc.perform(get("/api/v1/projects"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[*].title", hasItem("Spring Boot API")));
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[*].title", hasItems("Spring Boot API", "Completed integration cleanup")));
+    }
+
+    @Test
+    void getProjectDetail_returnsProjectDetail() throws Exception {
+        String projectId = "2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20";
+        mockMvc.perform(get("/api/v1/projects/{projectId}/detail", projectId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(projectId))
+                .andExpect(jsonPath("$.title").value("Spring Boot API"))
+                .andExpect(jsonPath("$.status").value("OPEN"));
+    }
+
+    @Test
+    void getProjectDetail_returnsNotFoundForMissingProject() throws Exception {
+        mockMvc.perform(get("/api/v1/projects/{projectId}/detail", UUID.randomUUID()))
+                .andExpect(status().isNotFound());
     }
 
     @Test

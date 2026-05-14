@@ -32,6 +32,12 @@ public class ProjectService implements ProjectFacade {
     }
 
     @Override
+    public Project getProjectDetail(UUID projectId) {
+        return projectQueryRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+    }
+
+    @Override
     public Project createProject(CreateProjectCommand command) {
         if (projectCommandRepository.existsByTitle(command.title())) {
             throw new ProjectAlreadyExistsException(command.title());

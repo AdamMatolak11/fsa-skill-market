@@ -9,6 +9,8 @@ import sk.posam.fsa.skill_market.domain.project.UpdateProjectCommand;
 public interface ProjectFacade {
 
     List<Project> getAllProjects();
+    
+    Project getProjectDetail(UUID projectId);
 
     Project createProject(CreateProjectCommand command);
 
