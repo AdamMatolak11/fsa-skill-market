@@ -21,4 +21,11 @@ public final class ProjectCatalog {
                 .sorted(Comparator.comparing(Project::createdAt).reversed())
                 .toList();
     }
+
+    public List<Project> projectsForUser(java.util.UUID userId) {
+        return projects.stream()
+                .filter(project -> userId.equals(project.clientId()) || userId.equals(project.assignedFreelancerId()))
+                .sorted(Comparator.comparing(Project::createdAt).reversed())
+                .toList();
+    }
 }

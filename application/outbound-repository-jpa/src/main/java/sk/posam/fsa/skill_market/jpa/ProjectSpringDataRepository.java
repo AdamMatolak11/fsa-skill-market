@@ -8,4 +8,6 @@ interface ProjectSpringDataRepository extends JpaRepository<ProjectJpaEntity, UU
     boolean existsByTitleIgnoreCase(String title);
 
     java.util.List<ProjectJpaEntity> findAllByAssignedFreelancerId(UUID assignedFreelancerId);
+
+    java.util.List<ProjectJpaEntity> findAllByClientId(UUID clientId);
 }

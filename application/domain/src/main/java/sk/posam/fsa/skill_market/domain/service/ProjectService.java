@@ -45,6 +45,16 @@ public class ProjectService implements ProjectFacade {
     }
 
     @Override
+    public List<Project> getMyProjects(UUID userId) {
+        java.util.Set<Project> projects = new java.util.HashSet<>();
+        projects.addAll(projectQueryRepository.findByClientId(userId));
+        projects.addAll(projectQueryRepository.findByAssignedFreelancerId(userId));
+
+        return ProjectCatalog.of(projects.stream().toList())
+                .projectsForUser(userId);
+    }
+
+    @Override
     public Project createProject(CreateProjectCommand command) {
         if (projectCommandRepository.existsByTitle(command.title())) {
             throw new ProjectAlreadyExistsException(command.title());

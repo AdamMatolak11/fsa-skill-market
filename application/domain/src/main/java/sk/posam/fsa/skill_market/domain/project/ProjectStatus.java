@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 public enum ProjectStatus {
     OPEN(true, true),
-    IN_PROGRESS(false, false),
-    COMPLETED(false, true),
+    IN_PROGRESS(false, true),
+    COMPLETED(false, false),
     CANCELLED(false, false);
 
     private final boolean acceptsOffers;

@@ -183,6 +183,11 @@ class OfferServiceTest {
         }
 
         @Override
+        public List<Project> findByClientId(UUID clientId) {
+            return List.of();
+        }
+
+        @Override
         public Optional<Project> findById(UUID projectId) {
             return project.id().equals(projectId) ? Optional.of(project) : Optional.empty();
         }
@@ -196,6 +201,11 @@ class OfferServiceTest {
 
         @Override
         public List<Project> findByAssignedFreelancerId(UUID freelancerId) {
+            return List.of();
+        }
+
+        @Override
+        public List<Project> findByClientId(UUID clientId) {
             return List.of();
         }
 

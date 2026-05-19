@@ -82,6 +82,11 @@ class ProjectServiceTest {
             }
 
             @Override
+            public List<Project> findByClientId(UUID clientId) {
+                return List.of();
+            }
+
+            @Override
             public Optional<Project> findById(UUID projectId) {
                 return List.of(olderOpenProject, inProgressProject, newerOpenProject, cancelledProject, completedProject).stream()
                         .filter(project -> project.id().equals(projectId))
@@ -150,6 +155,11 @@ class ProjectServiceTest {
 
         @Override
         public List<Project> findByAssignedFreelancerId(UUID freelancerId) {
+            return List.of();
+        }
+
+        @Override
+        public List<Project> findByClientId(UUID clientId) {
             return List.of();
         }
 

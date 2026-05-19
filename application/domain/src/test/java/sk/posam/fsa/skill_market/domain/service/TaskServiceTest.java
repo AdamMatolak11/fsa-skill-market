@@ -219,6 +219,13 @@ class TaskServiceTest {
         }
 
         @Override
+        public List<Project> findByClientId(UUID clientId) {
+            return project.clientId() != null && project.clientId().equals(clientId)
+                    ? List.of(project)
+                    : List.of();
+        }
+
+        @Override
         public Optional<Project> findById(UUID projectId) {
             return project.id().equals(projectId) ? Optional.of(project) : Optional.empty();
         }
@@ -232,6 +239,11 @@ class TaskServiceTest {
 
         @Override
         public List<Project> findByAssignedFreelancerId(UUID freelancerId) {
+            return List.of();
+        }
+
+        @Override
+        public List<Project> findByClientId(UUID clientId) {
             return List.of();
         }
 

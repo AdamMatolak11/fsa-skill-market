@@ -37,6 +37,13 @@ public class ProjectJpaRepositoryAdapter implements ProjectQueryRepository, Proj
     }
 
     @Override
+    public List<Project> findByClientId(UUID clientId) {
+        return projectSpringDataRepository.findAllByClientId(clientId).stream()
+                .map(projectJpaMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<Project> findById(UUID projectId) {
         return projectSpringDataRepository.findById(projectId)
                 .map(projectJpaMapper::toDomain);

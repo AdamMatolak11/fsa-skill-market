@@ -13,6 +13,7 @@ public interface ProjectFacade {
     Project getProjectDetail(UUID projectId);
 
     List<Project> getAssignedProjects(UUID freelancerId);
+    List<Project> getMyProjects(UUID userId);
 
     Project createProject(CreateProjectCommand command);
 

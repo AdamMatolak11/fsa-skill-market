@@ -63,6 +63,22 @@ public class ProjectRestController implements ProjectsApi {
     }
 
     @Override
+    public ResponseEntity<List<ProjectResponse>> getMyProjects() {
+        UUID userId = authenticatedUserProvider.currentUser()
+                .map(AuthenticatedUser::userId)
+                .orElse(null);
+
+        if (userId == null) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        List<ProjectResponse> body = projectFacade.getMyProjects(userId).stream()
+                .map(projectRestMapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(body);
+    }
+
+    @Override
     public ResponseEntity<ProjectResponse> createProject(CreateProjectRequest createProjectRequest) {
         UUID clientId = authenticatedUserProvider.currentUser()
                 .map(AuthenticatedUser::userId)

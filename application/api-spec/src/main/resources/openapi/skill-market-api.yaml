@@ -96,6 +96,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/projects/my:
+    get:
+      tags:
+        - Projects
+      operationId: getMyProjects
+      summary: Get projects where current user is participant
+      description: Returns all projects where the current user is either the client who created the project or the assigned freelancer.
+      responses:
+        '200':
+          description: Projects loaded successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectResponse'
+        '401':
+          description: Missing or invalid access token.
+        '403':
+          description: User must be authenticated to view their projects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/v1/projects/{projectId}/detail:
     get:
       tags:
