@@ -38,6 +38,13 @@ public class ProjectService implements ProjectFacade {
     }
 
     @Override
+    public List<Project> getAssignedProjects(UUID freelancerId) {
+        return projectQueryRepository.findByAssignedFreelancerId(freelancerId).stream()
+                .sorted(java.util.Comparator.comparing(Project::createdAt).reversed())
+                .toList();
+    }
+
+    @Override
     public Project createProject(CreateProjectCommand command) {
         if (projectCommandRepository.existsByTitle(command.title())) {
             throw new ProjectAlreadyExistsException(command.title());

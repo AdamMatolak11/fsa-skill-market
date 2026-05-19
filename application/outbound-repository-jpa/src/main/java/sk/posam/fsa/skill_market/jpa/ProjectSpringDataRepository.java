@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 interface ProjectSpringDataRepository extends JpaRepository<ProjectJpaEntity, UUID> {
 
     boolean existsByTitleIgnoreCase(String title);
+
+    java.util.List<ProjectJpaEntity> findAllByAssignedFreelancerId(UUID assignedFreelancerId);
 }

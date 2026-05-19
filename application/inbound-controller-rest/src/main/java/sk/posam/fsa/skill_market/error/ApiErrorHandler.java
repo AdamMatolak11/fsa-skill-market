@@ -18,6 +18,9 @@ import sk.posam.fsa.skill_market.domain.project.ProjectCannotBeCancelledExceptio
 import sk.posam.fsa.skill_market.domain.project.ProjectCannotBeEditedException;
 import sk.posam.fsa.skill_market.domain.project.ProjectNotCompletedException;
 import sk.posam.fsa.skill_market.domain.project.ProjectNotFoundException;
+import sk.posam.fsa.skill_market.domain.task.ProjectTaskManagementUnavailableException;
+import sk.posam.fsa.skill_market.domain.task.TaskNotFoundException;
+import sk.posam.fsa.skill_market.domain.task.TaskParticipantMismatchException;
 import sk.posam.fsa.skill_market.rest.dto.ErrorResponse;
 import sk.posam.fsa.skill_market.security.ForbiddenOperationException;
 
@@ -39,7 +42,8 @@ public class ApiErrorHandler {
     @ExceptionHandler({
             ProjectNotFoundException.class,
             OfferNotFoundException.class,
-            UserProfileNotFoundException.class
+            UserProfileNotFoundException.class,
+            TaskNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -53,7 +57,9 @@ public class ApiErrorHandler {
             OfferCannotBeDecidedException.class,
             ProjectCannotBeCancelledException.class,
             ProjectCannotBeEditedException.class,
-            UserProfileNotFreelancerException.class
+            UserProfileNotFreelancerException.class,
+            ProjectTaskManagementUnavailableException.class,
+            TaskParticipantMismatchException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT)

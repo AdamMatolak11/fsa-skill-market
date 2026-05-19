@@ -49,3 +49,10 @@ databaseChangeLog:
         - sqlFile:
             path: db/migration/V7__seed_missing_user_profile.sql
             relativeToChangelogFile: false
+  - changeSet:
+      id: 008-create-project-task-tables
+      author: codex
+      changes:
+        - sqlFile:
+            path: db/migration/V8__create_project_task_tables.sql
+            relativeToChangelogFile: false

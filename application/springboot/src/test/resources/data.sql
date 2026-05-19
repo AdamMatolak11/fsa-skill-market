@@ -112,4 +112,58 @@ VALUES
         1800.00,
         'COMPLETED',
         TIMESTAMP WITH TIME ZONE '2026-01-20 10:00:00+01:00'
+    ),
+    (
+        '99999999-9999-9999-9999-999999999999',
+        '11111111-1111-1111-1111-111111111111',
+        '22222222-2222-2222-2222-222222222222',
+        'Freelancer workspace rollout',
+        'Active delivery project used for task management and comments.',
+        3200.00,
+        'IN_PROGRESS',
+        TIMESTAMP WITH TIME ZONE '2026-03-01 10:00:00+01:00'
+    );
+
+INSERT INTO project_tasks (
+    id, project_id, assignee_user_id, created_by_user_id, title, description, status, created_at, updated_at
+)
+VALUES
+    (
+        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        '99999999-9999-9999-9999-999999999999',
+        '22222222-2222-2222-2222-222222222222',
+        '11111111-1111-1111-1111-111111111111',
+        'Design API breakdown',
+        'Prepare the first cut of the task board API plan.',
+        'IN_PROGRESS',
+        TIMESTAMP WITH TIME ZONE '2026-03-02 09:00:00+01:00',
+        TIMESTAMP WITH TIME ZONE '2026-03-02 14:00:00+01:00'
+    ),
+    (
+        'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+        '99999999-9999-9999-9999-999999999999',
+        '11111111-1111-1111-1111-111111111111',
+        '22222222-2222-2222-2222-222222222222',
+        'Review acceptance criteria',
+        'Client to review task states and board behavior.',
+        'TODO',
+        TIMESTAMP WITH TIME ZONE '2026-03-03 10:30:00+01:00',
+        TIMESTAMP WITH TIME ZONE '2026-03-03 10:30:00+01:00'
+    );
+
+INSERT INTO task_comments (id, task_id, author_user_id, message, created_at)
+VALUES
+    (
+        'cccccccc-cccc-cccc-cccc-cccccccccccc',
+        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        '11111111-1111-1111-1111-111111111111',
+        'Please keep the workflow close to Jira columns.',
+        TIMESTAMP WITH TIME ZONE '2026-03-02 10:00:00+01:00'
+    ),
+    (
+        'dddddddd-dddd-dddd-dddd-dddddddddddd',
+        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        '22222222-2222-2222-2222-222222222222',
+        'Understood. I will keep the first version lean.',
+        TIMESTAMP WITH TIME ZONE '2026-03-02 10:30:00+01:00'
     );

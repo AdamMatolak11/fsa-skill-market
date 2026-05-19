@@ -119,4 +119,56 @@
             </basic>
         </attributes>
     </entity>
+    <entity class="sk.posam.fsa.skill_market.jpa.TaskJpaEntity" access="FIELD">
+        <table name="project_tasks"/>
+        <attributes>
+            <id name="id">
+                <column name="id" nullable="false"/>
+            </id>
+            <basic name="projectId">
+                <column name="project_id" nullable="false"/>
+            </basic>
+            <basic name="assigneeUserId">
+                <column name="assignee_user_id"/>
+            </basic>
+            <basic name="createdByUserId">
+                <column name="created_by_user_id" nullable="false"/>
+            </basic>
+            <basic name="title">
+                <column name="title" nullable="false" length="255"/>
+            </basic>
+            <basic name="description">
+                <column name="description" nullable="false" length="5000"/>
+            </basic>
+            <basic name="status">
+                <column name="status" nullable="false" length="20"/>
+            </basic>
+            <basic name="createdAt">
+                <column name="created_at" nullable="false"/>
+            </basic>
+            <basic name="updatedAt">
+                <column name="updated_at" nullable="false"/>
+            </basic>
+        </attributes>
+    </entity>
+    <entity class="sk.posam.fsa.skill_market.jpa.TaskCommentJpaEntity" access="FIELD">
+        <table name="task_comments"/>
+        <attributes>
+            <id name="id">
+                <column name="id" nullable="false"/>
+            </id>
+            <basic name="taskId">
+                <column name="task_id" nullable="false"/>
+            </basic>
+            <basic name="authorUserId">
+                <column name="author_user_id" nullable="false"/>
+            </basic>
+            <basic name="message">
+                <column name="message" nullable="false" length="5000"/>
+            </basic>
+            <basic name="createdAt">
+                <column name="created_at" nullable="false"/>
+            </basic>
+        </attributes>
+    </entity>
 </entity-mappings>

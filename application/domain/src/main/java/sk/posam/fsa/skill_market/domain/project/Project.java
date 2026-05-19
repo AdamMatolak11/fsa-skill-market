@@ -111,6 +111,17 @@ public final class Project {
         return ProjectStatus.OPEN.equals(status);
     }
 
+    public boolean hasAssignedFreelancer() {
+        return assignedFreelancerId != null;
+    }
+
+    public boolean hasParticipant(UUID userId) {
+        if (userId == null) {
+            return false;
+        }
+        return userId.equals(clientId) || userId.equals(assignedFreelancerId);
+    }
+
     public Project update(String title, String description, BigDecimal budget) {
         if (!canBeEdited()) {
             throw new ProjectCannotBeEditedException(id, status);

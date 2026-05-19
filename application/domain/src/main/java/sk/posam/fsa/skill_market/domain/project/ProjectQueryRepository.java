@@ -8,5 +8,7 @@ public interface ProjectQueryRepository {
 
     List<Project> findAll();
 
+    List<Project> findByAssignedFreelancerId(UUID freelancerId);
+
     Optional<Project> findById(UUID id);
 }

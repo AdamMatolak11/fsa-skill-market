@@ -77,6 +77,11 @@ class ProjectServiceTest {
             }
 
             @Override
+            public List<Project> findByAssignedFreelancerId(UUID freelancerId) {
+                return List.of();
+            }
+
+            @Override
             public Optional<Project> findById(UUID projectId) {
                 return List.of(olderOpenProject, inProgressProject, newerOpenProject, cancelledProject, completedProject).stream()
                         .filter(project -> project.id().equals(projectId))
@@ -87,7 +92,7 @@ class ProjectServiceTest {
 
         ProjectService service = new ProjectService(repository, commandRepository);
 
-        assertEquals(List.of(completedProject, cancelledProject, newerOpenProject, inProgressProject, olderOpenProject), service.getAllProjects());
+        assertEquals(List.of(completedProject, newerOpenProject, olderOpenProject), service.getAllProjects());
     }
 
     @Test
@@ -140,6 +145,11 @@ class ProjectServiceTest {
     private static final class EmptyProjectQueryRepository implements ProjectQueryRepository {
         @Override
         public List<Project> findAll() {
+            return List.of();
+        }
+
+        @Override
+        public List<Project> findByAssignedFreelancerId(UUID freelancerId) {
             return List.of();
         }
 

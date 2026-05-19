@@ -178,6 +178,11 @@ class OfferServiceTest {
         }
 
         @Override
+        public List<Project> findByAssignedFreelancerId(UUID freelancerId) {
+            return List.of();
+        }
+
+        @Override
         public Optional<Project> findById(UUID projectId) {
             return project.id().equals(projectId) ? Optional.of(project) : Optional.empty();
         }
@@ -186,6 +191,11 @@ class OfferServiceTest {
     private static final class EmptyProjectQueryRepository implements ProjectQueryRepository {
         @Override
         public List<Project> findAll() {
+            return List.of();
+        }
+
+        @Override
+        public List<Project> findByAssignedFreelancerId(UUID freelancerId) {
             return List.of();
         }
 

@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 public enum ProjectStatus {
     OPEN(true, true),
-    IN_PROGRESS(false, true),
+    IN_PROGRESS(false, false),
     COMPLETED(false, true),
-    CANCELLED(false, true);
+    CANCELLED(false, false);
 
     private final boolean acceptsOffers;
     private final boolean visibleInMarketplace;

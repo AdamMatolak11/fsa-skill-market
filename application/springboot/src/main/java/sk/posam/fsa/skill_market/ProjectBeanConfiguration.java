@@ -24,6 +24,12 @@ import sk.posam.fsa.skill_market.domain.service.RatingService;
 import sk.posam.fsa.skill_market.domain.registration.IdentityRegistrationGateway;
 import sk.posam.fsa.skill_market.domain.service.RegistrationFacade;
 import sk.posam.fsa.skill_market.domain.service.RegistrationService;
+import sk.posam.fsa.skill_market.domain.service.TaskFacade;
+import sk.posam.fsa.skill_market.domain.service.TaskService;
+import sk.posam.fsa.skill_market.domain.task.TaskCommandRepository;
+import sk.posam.fsa.skill_market.domain.task.TaskCommentCommandRepository;
+import sk.posam.fsa.skill_market.domain.task.TaskCommentQueryRepository;
+import sk.posam.fsa.skill_market.domain.task.TaskQueryRepository;
 
 @Configuration
 public class ProjectBeanConfiguration {
@@ -102,6 +108,23 @@ public class ProjectBeanConfiguration {
                 userProfileQueryRepository,
                 userProfileCommandRepository,
                 ratingCommandRepository
+        );
+    }
+
+    @Bean
+    public TaskFacade taskFacade(
+            ProjectQueryRepository projectQueryRepository,
+            TaskQueryRepository taskQueryRepository,
+            TaskCommandRepository taskCommandRepository,
+            TaskCommentQueryRepository taskCommentQueryRepository,
+            TaskCommentCommandRepository taskCommentCommandRepository
+    ) {
+        return new TaskService(
+                projectQueryRepository,
+                taskQueryRepository,
+                taskCommandRepository,
+                taskCommentQueryRepository,
+                taskCommentCommandRepository
         );
     }
 }

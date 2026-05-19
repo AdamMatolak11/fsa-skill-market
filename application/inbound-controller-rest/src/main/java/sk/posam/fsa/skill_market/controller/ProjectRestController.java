@@ -54,6 +54,15 @@ public class ProjectRestController implements ProjectsApi {
     }
 
     @Override
+    public ResponseEntity<List<ProjectResponse>> getAssignedProjects(UUID freelancerId) {
+        assertCanViewAssignedProjects(freelancerId);
+        List<ProjectResponse> body = projectFacade.getAssignedProjects(freelancerId).stream()
+                .map(projectRestMapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(body);
+    }
+
+    @Override
     public ResponseEntity<ProjectResponse> createProject(CreateProjectRequest createProjectRequest) {
         UUID clientId = authenticatedUserProvider.currentUser()
                 .map(AuthenticatedUser::userId)
@@ -95,6 +104,21 @@ public class ProjectRestController implements ProjectsApi {
         }
         if (project.clientId() != null && !project.clientId().equals(user.userId())) {
             throw new ForbiddenOperationException("Current user cannot manage project '" + projectId + "'");
+        }
+    }
+
+    private void assertCanViewAssignedProjects(UUID freelancerId) {
+        Optional<AuthenticatedUser> currentUser = authenticatedUserProvider.currentUser();
+        if (currentUser.isEmpty()) {
+            return;
+        }
+
+        AuthenticatedUser user = currentUser.get();
+        if (user.hasRole("ADMIN")) {
+            return;
+        }
+        if (!user.userId().equals(freelancerId)) {
+            throw new ForbiddenOperationException("Current user cannot view assigned projects for freelancer '" + freelancerId + "'");
         }
     }
 }

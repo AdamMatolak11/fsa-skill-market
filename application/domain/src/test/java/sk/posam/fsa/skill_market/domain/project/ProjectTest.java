@@ -42,7 +42,7 @@ class ProjectTest {
     }
 
     @Test
-    void in_progress_project_is_visible_in_marketplace_but_does_not_accept_offers() {
+    void in_progress_project_is_not_visible_in_marketplace_and_does_not_accept_offers() {
         Project project = Project.restore(
                 UUID.randomUUID(),
                 UUID.randomUUID(),
@@ -54,7 +54,7 @@ class ProjectTest {
                 OffsetDateTime.now()
         );
 
-        assertTrue(project.isVisibleInMarketplace());
+        assertFalse(project.isVisibleInMarketplace());
         assertFalse(project.acceptsOffers());
     }
 }

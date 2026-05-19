@@ -9,8 +9,10 @@ import sk.posam.fsa.skill_market.domain.project.UpdateProjectCommand;
 public interface ProjectFacade {
 
     List<Project> getAllProjects();
-    
+
     Project getProjectDetail(UUID projectId);
+
+    List<Project> getAssignedProjects(UUID freelancerId);
 
     Project createProject(CreateProjectCommand command);
 

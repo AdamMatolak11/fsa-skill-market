@@ -8,6 +8,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -20,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 class ProjectApiIntegrationTest {
 
     @Autowired
@@ -41,6 +43,16 @@ class ProjectApiIntegrationTest {
                 .andExpect(jsonPath("$.id").value(projectId))
                 .andExpect(jsonPath("$.title").value("Spring Boot API"))
                 .andExpect(jsonPath("$.status").value("OPEN"));
+    }
+
+    @Test
+    void getAssignedProjects_returnsFreelancerWorkspaceProjects() throws Exception {
+        mockMvc.perform(get("/api/v1/freelancers/22222222-2222-2222-2222-222222222222/projects/assigned"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].title", hasItems(
+                        "Freelancer workspace rollout",
+                        "Completed integration cleanup"
+                )));
     }
 
     @Test
@@ -162,6 +174,74 @@ class ProjectApiIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.projectId").value("2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20"))
                 .andExpect(jsonPath("$.status").value("PENDING"));
+    }
+
+    @Test
+    void getProjectTasks_returnsWorkspaceTasks() throws Exception {
+        mockMvc.perform(get("/api/v1/projects/99999999-9999-9999-9999-999999999999/tasks"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[*].title", hasItems("Design API breakdown", "Review acceptance criteria")));
+    }
+
+    @Test
+    void createProjectTask_returnsCreatedTask() throws Exception {
+        mockMvc.perform(post("/api/v1/projects/99999999-9999-9999-9999-999999999999/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "creatorUserId": "11111111-1111-1111-1111-111111111111",
+                                  "assigneeUserId": "22222222-2222-2222-2222-222222222222",
+                                  "title": "Set up task comments",
+                                  "description": "Add the first comment thread support."
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("TODO"))
+                .andExpect(jsonPath("$.assigneeUserId").value("22222222-2222-2222-2222-222222222222"));
+    }
+
+    @Test
+    void updateProjectTask_returnsUpdatedTask() throws Exception {
+        mockMvc.perform(put("/api/v1/projects/99999999-9999-9999-9999-999999999999/tasks/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "assigneeUserId": "11111111-1111-1111-1111-111111111111",
+                                  "title": "Design API breakdown reviewed",
+                                  "description": "Task DTOs and workspace endpoints are drafted.",
+                                  "status": "IN_REVIEW"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("IN_REVIEW"))
+                .andExpect(jsonPath("$.assigneeUserId").value("11111111-1111-1111-1111-111111111111"));
+    }
+
+    @Test
+    void getTaskComments_returnsClientAndFreelancerConversation() throws Exception {
+        mockMvc.perform(get("/api/v1/projects/99999999-9999-9999-9999-999999999999/tasks/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/comments"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[*].message", hasItems(
+                        "Please keep the workflow close to Jira columns.",
+                        "Understood. I will keep the first version lean."
+                )));
+    }
+
+    @Test
+    void createTaskComment_returnsCreatedComment() throws Exception {
+        mockMvc.perform(post("/api/v1/projects/99999999-9999-9999-9999-999999999999/tasks/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "authorUserId": "22222222-2222-2222-2222-222222222222",
+                                  "message": "I added the task board contract and repository flow."
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.authorUserId").value("22222222-2222-2222-2222-222222222222"))
+                .andExpect(jsonPath("$.message").value("I added the task board contract and repository flow."));
     }
 
     @Test
