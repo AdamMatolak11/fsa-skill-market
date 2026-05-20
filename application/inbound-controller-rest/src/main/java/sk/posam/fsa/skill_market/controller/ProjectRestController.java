@@ -3,6 +3,7 @@ package sk.posam.fsa.skill_market.controller;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,24 +27,44 @@ public class ProjectRestController implements ProjectsApi {
     private final ProjectRestMapper projectRestMapper;
     private final ProjectQueryRepository projectQueryRepository;
     private final AuthenticatedUserProvider authenticatedUserProvider;
+    private final Environment environment;
 
     public ProjectRestController(
             ProjectFacade projectFacade,
             ProjectRestMapper projectRestMapper,
             ProjectQueryRepository projectQueryRepository,
-            AuthenticatedUserProvider authenticatedUserProvider
+            AuthenticatedUserProvider authenticatedUserProvider,
+            Environment environment
     ) {
         this.projectFacade = projectFacade;
         this.projectRestMapper = projectRestMapper;
         this.projectQueryRepository = projectQueryRepository;
         this.authenticatedUserProvider = authenticatedUserProvider;
+        this.environment = environment;
     }
 
     @Override
-    public ResponseEntity<List<ProjectResponse>> getAllProjects() {
-        List<ProjectResponse> body = projectFacade.getAllProjects().stream()
-                .map(projectRestMapper::toResponse)
-                .toList();
+    public ResponseEntity<List<ProjectResponse>> getAllProjects(Boolean mine) {
+        List<ProjectResponse> body;
+
+        if (Boolean.TRUE.equals(mine)) {
+            UUID userId = authenticatedUserProvider.currentUser()
+                    .map(AuthenticatedUser::userId)
+                    .orElse(null);
+
+            if (userId == null) {
+                body = List.of();
+            } else {
+                body = projectFacade.getMyProjects(userId).stream()
+                        .map(projectRestMapper::toResponse)
+                        .toList();
+            }
+        } else {
+            body = projectFacade.getAllProjects().stream()
+                    .map(projectRestMapper::toResponse)
+                    .toList();
+        }
+
         return ResponseEntity.ok(body);
     }
 
@@ -63,26 +84,15 @@ public class ProjectRestController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<List<ProjectResponse>> getMyProjects() {
-        UUID userId = authenticatedUserProvider.currentUser()
-                .map(AuthenticatedUser::userId)
-                .orElse(null);
-
-        if (userId == null) {
-            return ResponseEntity.ok(List.of());
-        }
-
-        List<ProjectResponse> body = projectFacade.getMyProjects(userId).stream()
-                .map(projectRestMapper::toResponse)
-                .toList();
-        return ResponseEntity.ok(body);
-    }
-
-    @Override
     public ResponseEntity<ProjectResponse> createProject(CreateProjectRequest createProjectRequest) {
         UUID clientId = authenticatedUserProvider.currentUser()
                 .map(AuthenticatedUser::userId)
                 .orElse(null);
+
+        if (clientId == null && !environment.matchesProfiles("!keycloak")) {
+            throw new ForbiddenOperationException("User must be authenticated to create a project");
+        }
+
         ProjectResponse response = projectRestMapper.toResponse(
                 projectFacade.createProject(projectRestMapper.toCommand(clientId, createProjectRequest))
         );

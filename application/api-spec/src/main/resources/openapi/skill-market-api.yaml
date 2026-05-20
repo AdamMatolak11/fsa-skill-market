@@ -46,8 +46,16 @@ paths:
       tags:
         - Projects
       operationId: getAllProjects
-      summary: Get marketplace projects
-      description: Returns projects that are visible in the marketplace.
+      summary: Get projects
+      description: Returns projects visible in the marketplace or projects where current user is participant if mine=true.
+      parameters:
+        - name: mine
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: If true, returns only projects where the current user is either the client who created the project or the assigned freelancer.
       responses:
         '200':
           description: Projects loaded successfully.
@@ -92,30 +100,6 @@ paths:
           description: Access token does not have required role.
         '409':
           description: Project with the same title already exists.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /api/v1/projects/my:
-    get:
-      tags:
-        - Projects
-      operationId: getMyProjects
-      summary: Get projects where current user is participant
-      description: Returns all projects where the current user is either the client who created the project or the assigned freelancer.
-      responses:
-        '200':
-          description: Projects loaded successfully.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProjectResponse'
-        '401':
-          description: Missing or invalid access token.
-        '403':
-          description: User must be authenticated to view their projects.
           content:
             application/json:
               schema:

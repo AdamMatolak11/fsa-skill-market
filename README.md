@@ -18,9 +18,9 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 - RQ07 Systém umožní klientovi prijať alebo odmietnuť ponuku freelancera.
 - RQ08 Systém umožní klientovi hodnotiť freelancera po dokončení projektu.
 - RQ09 Systém umožní vyhľadávať freelancerov podľa zručností.
-- RQ10 Systém umožní filtrovať projekty podľa kategórie, rozpočtu alebo stavu.
+- RQ10 Systém umožní filtrovať projekty (v súčasnosti zobrazenie všetkých dostupných projektov alebo projektov používateľa).
 - RQ11 Systém umožní používateľovi upravovať svoj profil.
-- RQ12 Systém umožní notifikovať používateľov o nových ponukách alebo zmenách projektu.
+- RQ12 Systém umožní notifikovať používateľov o nových ponukách alebo zmenách projektu (v doméne pripravené, REST rozhranie zatiaľ nepodporuje push notifikácie).
 - RQ13 Systém umožní administrátorovi spravovať používateľov a projekty.
 - RQ14 Systém umožní zobrazovať históriu projektov používateľa.
 
@@ -49,9 +49,9 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 **Aktér:** Používateľ  
 
 **Hlavný scenár:**
-1. Používateľ zadá email a heslo  
-2. Systém overí validitu údajov  
-3. Systém vytvorí nový účet  
+1. Používateľ zadá email, heslo a meno  
+2. Systém vytvorí používateľa v Keycloak a priradí mu rolu  
+3. Systém vytvorí lokálny profil používateľa  
 4. Používateľ je uložený v systéme  
 
 ---
@@ -60,10 +60,10 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 **Aktér:** Používateľ  
 
 **Hlavný scenár:**
-1. Používateľ zadá prihlasovacie údaje  
-2. Systém overí údaje  
-3. Systém vygeneruje JWT token  
-4. Používateľ je prihlásený  
+1. Používateľ zadá prihlasovacie údaje do Keycloak  
+2. Keycloak overí údaje  
+3. Keycloak vygeneruje JWT token  
+4. Používateľ pristupuje k API s týmto tokenom  
 
 ---
 
@@ -72,8 +72,8 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 
 **Hlavný scenár:**
 1. Klient zadá názov, popis a rozpočet  
-2. Systém vytvorí projekt  
-3. Projekt je dostupný freelancerom  
+2. Systém vytvorí projekt v stave OPEN  
+3. Projekt je dostupný freelancerom v marketplace  
 
 ---
 
@@ -81,10 +81,9 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 **Aktér:** Freelancer  
 
 **Hlavný scenár:**
-1. Freelancer si vyberie projekt  
+1. Freelancer si vyberie projekt v stave OPEN  
 2. Zadá cenu a správu  
-3. Systém uloží ponuku  
-4. Klient je notifikovaný  
+3. Systém uloží ponuku v stave PENDING  
 
 ---
 
@@ -92,10 +91,10 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 **Aktér:** Klient  
 
 **Hlavný scenár:**
-1. Klient si zobrazí ponuky  
-2. Vyberie jednu ponuku  
-3. Systém nastaví projekt ako „IN_PROGRESS“  
-4. Ostatné ponuky sú zamietnuté  
+1. Klient si zobrazí ponuky k svojmu projektu  
+2. Vyberie jednu ponuku a prijme ju  
+3. Systém nastaví projekt ako „IN_PROGRESS“ a priradí freelancera  
+4. Prijatá ponuka sa nastaví na ACCEPTED, ostatné na REJECTED  
 
 ---
 
@@ -103,9 +102,9 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 **Aktér:** Klient  
 
 **Hlavný scenár:**
-1. Projekt je dokončený  
-2. Klient priradí hodnotenie  
-3. Systém aktualizuje rating freelancera  
+1. Projekt je v stave IN_PROGRESS alebo COMPLETED (zvyčajne po dokončení)  
+2. Klient priradí číselné hodnotenie a komentár  
+3. Systém uloží hodnotenie a aktualizuje celkový rating freelancera  
 
 ---
 
@@ -113,9 +112,9 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 **Aktér:** Používateľ  
 
 **Hlavný scenár:**
-1. Používateľ zadá filter (skill)  
-2. Systém vyhľadá freelancerov  
-3. Zobrazí výsledky  
+1. Používateľ zadá filter (zručnosť)  
+2. Systém vyhľadá freelancerov s danou zručnosťou  
+3. Zobrazí výsledky vrátane ich priemerného hodnotenia  
 
 ---
 
@@ -123,8 +122,18 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 **Aktér:** Používateľ  
 
 **Hlavný scenár:**
-1. Používateľ upraví profil  
-2. Systém uloží zmeny
+1. Používateľ si načíta svoj profil  
+2. Používateľ upraví meno, bio alebo zoznam zručností  
+3. Systém uloží zmeny v lokálnom profile  
+
+---
+
+### UC09 – Zobrazenie mojich projektov
+**Aktér:** Používateľ  
+
+**Hlavný scenár:**
+1. Používateľ si vyžiada zoznam svojich projektov  
+2. Systém vráti projekty, kde je používateľ klientom alebo priradeným freelancerom  
 
 ---
 
@@ -139,10 +148,10 @@ Používatelia môžu vystupovať ako klienti alebo freelanceri. Freelanceri mô
 Projekt je rozdelený na samostatné Maven moduly podľa hexagonálnej architektúry:
 
 - `application/domain` - doména, porty a business služby bez Spring/JPA závislostí
-- `application/api-spec` - OpenAPI kontrakt a generované REST rozhrania a DTO
-- `application/inbound-controller-rest` - inbound REST adaptér, mapping a security
-- `application/outbound-repository-jpa` - outbound JPA adaptér a perzistenčné mapovanie
-- `application/springboot` - bootstrap modul, bean wiring a runtime konfigurácia
+- `application/api-spec` - OpenAPI kontrakt a generované REST rozhrania a DTO (používa `openapi-generator-maven-plugin`)
+- `application/inbound-controller-rest` - inbound REST adaptér, mapping a security (implementuje generované rozhrania z `api-spec`)
+- `application/outbound-repository-jpa` - outbound JPA adaptér a perzistenčné mapovanie (implementuje doménové porty)
+- `application/springboot` - bootstrap modul, bean wiring, runtime konfigurácia a integračné testy
 
 ## 2. Prvé spustenie infra (DB + Keycloak)
 
@@ -197,15 +206,41 @@ OpenAPI kontrakt je v súbore:
 
 - `application/api-spec/src/main/resources/openapi/skill-market-api.yaml`
 
-## 5. Otestovanie zabezpečeného endpointu
+## 5. Dôležité API endpointy
 
-Endpoint:
+Aplikácia poskytuje nasledujúce REST rozhrania:
 
-- `GET /api/v1/projects`
+### Používatelia a registrácia
+- `POST /api/v1/registrations` - Registrácia nového používateľa (vytvorí účet v Keycloak a lokálny profil)
 
-V lokálnom workshop režime je endpoint dostupný bez tokenu.
+### Projekty
+- `GET /api/v1/projects` - Marketplace: Zoznam projektov dostupných pre freelancerov
+- `GET /api/v1/projects/my` - Moje projekty: Zoznam projektov, ktorých je používateľ súčasťou
+- `POST /api/v1/projects` - Vytvorenie nového projektu
+- `GET /api/v1/projects/{projectId}/detail` - Detail konkrétneho projektu
+- `PUT /api/v1/projects/{projectId}` - Úprava projektu (iba v stave OPEN)
+- `DELETE /api/v1/projects/{projectId}` - Zrušenie projektu (iba v stave OPEN)
+- `GET /api/v1/freelancers/{freelancerId}/projects/assigned` - Projekty priradené konkrétnemu freelancerovi
 
-V `keycloak` profile bez tokenu vráti `401`.
+### Ponuky (Offers)
+- `GET /api/v1/projects/{projectId}/offers` - Zobrazenie ponúk k projektu
+- `POST /api/v1/projects/{projectId}/offers` - Odoslanie ponuky na projekt
+- `POST /api/v1/projects/{projectId}/offers/{offerId}/accept` - Prijatie ponuky
+- `POST /api/v1/projects/{projectId}/offers/{offerId}/reject` - Odmietnutie ponuky
+- `DELETE /api/v1/projects/{projectId}/offers/{offerId}` - Stiahnutie ponuky
+
+### Freelanceri a Profily
+- `GET /api/v1/freelancers?skill=java` - Vyhľadávanie freelancerov podľa zručnosti
+- `GET /api/v1/profiles/{userId}` - Získanie profilu používateľa
+- `PUT /api/v1/profiles/{userId}` - Aktualizácia profilu
+
+### Hodnotenia
+- `POST /api/v1/projects/{projectId}/ratings` - Ohodnotenie freelancera po skončení projektu
+
+## 6. Otestovanie zabezpečeného endpointu
+
+V lokálnom workshop režime sú endpointy dostupné bez tokenu.
+V `keycloak` profile bez tokenu vráti API `401`.
 
 ### Získanie JWT tokenu (PowerShell)
 
@@ -224,14 +259,16 @@ $token = (Invoke-RestMethod -Method Post `
 curl -H "Authorization: Bearer $token" http://localhost:8080/api/v1/projects
 ```
 
-## 6. Testovacie údaje
+## 7. Testovacie údaje
 
 ### Test používatelia:
 - `freelancer` / `freelancer123` (rola `FREELANCER`)
 - `client` / `client123` (rola `CLIENT`)
 - `admin-user` / `admin123` (rola `ADMIN`)
 
-## 7. Vypnutie infra
+Všetci používatelia sú predkonfigurovaní v Keycloak realm `skill-market`.
+
+## 8. Vypnutie infra
 
 ```powershell
 docker compose down
