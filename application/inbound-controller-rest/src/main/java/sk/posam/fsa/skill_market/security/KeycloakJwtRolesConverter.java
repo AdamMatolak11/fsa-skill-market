@@ -18,30 +18,20 @@ public class KeycloakJwtRolesConverter implements Converter<Jwt, Collection<Gran
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.addAll(extractRealmRoles(jwt));
+        authorities.addAll(extractUserRole(jwt));
         authorities.addAll(extractClientRoles(jwt));
         return authorities;
     }
 
-    @SuppressWarnings("unchecked")
-    private Collection<GrantedAuthority> extractRealmRoles(Jwt jwt) {
-        Object realmAccess = jwt.getClaim("realm_access");
-        if (!(realmAccess instanceof Map<?, ?> realmMap)) {
+    private Collection<GrantedAuthority> extractUserRole(Jwt jwt) {
+        String userRole = jwt.getClaimAsString("user_role");
+        if (userRole == null || userRole.isBlank()) {
             return List.of();
         }
 
-        Object roles = realmMap.get("roles");
-        if (!(roles instanceof Collection<?> roleNames)) {
-            return List.of();
-        }
-
-        return roleNames.stream()
-                .filter(String.class::isInstance)
-                .map(String.class::cast)
-                .map(String::toUpperCase)
-                .map(role -> new SimpleGrantedAuthority(ROLE_PREFIX + role))
-                .map(GrantedAuthority.class::cast)
-                .toList();
+        // Map "Client" -> "CLIENT" and "Freelancer" -> "FREELANCER"
+        String normalizedRole = userRole.toUpperCase();
+        return List.of(new SimpleGrantedAuthority(ROLE_PREFIX + normalizedRole));
     }
 
     @SuppressWarnings("unchecked")
