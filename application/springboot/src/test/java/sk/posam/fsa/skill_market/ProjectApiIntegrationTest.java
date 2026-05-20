@@ -1,5 +1,25 @@
 package sk.posam.fsa.skill_market;
 
+import sk.posam.fsa.skill_market.domain.offer.Offer;
+import sk.posam.fsa.skill_market.domain.offer.OfferCommandRepository;
+import sk.posam.fsa.skill_market.domain.profile.UserProfile;
+import sk.posam.fsa.skill_market.domain.profile.UserProfileCommandRepository;
+import sk.posam.fsa.skill_market.domain.profile.UserRole;
+import sk.posam.fsa.skill_market.domain.project.Project;
+import sk.posam.fsa.skill_market.domain.project.ProjectCommandRepository;
+import sk.posam.fsa.skill_market.domain.project.ProjectStatus;
+import sk.posam.fsa.skill_market.domain.rating.Rating;
+import sk.posam.fsa.skill_market.domain.rating.RatingCommandRepository;
+import sk.posam.fsa.skill_market.domain.task.Task;
+import sk.posam.fsa.skill_market.domain.task.TaskCommandRepository;
+import sk.posam.fsa.skill_market.domain.task.TaskComment;
+import sk.posam.fsa.skill_market.domain.task.TaskCommentCommandRepository;
+import sk.posam.fsa.skill_market.domain.task.TaskStatus;
+
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.Collections;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +47,30 @@ class ProjectApiIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ProjectCommandRepository projectRepository;
+
+    @Autowired
+    private UserProfileCommandRepository userProfileRepository;
+
+    @Autowired
+    private OfferCommandRepository offerRepository;
+
+    @Autowired
+    private TaskCommandRepository taskRepository;
+
+    @Autowired
+    private TaskCommentCommandRepository taskCommentRepository;
+
+    @Autowired
+    private RatingCommandRepository ratingRepository;
+
     @Test
     void getAllProjects_returnsMarketplaceProjects() throws Exception {
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        projectRepository.save(Project.restore(UUID.randomUUID(), clientId, null, "Spring Boot API", "Desc", BigDecimal.valueOf(1000), "OPEN", OffsetDateTime.now()));
+        projectRepository.save(Project.restore(UUID.randomUUID(), clientId, null, "Freelancer workspace rollout", "Desc", BigDecimal.valueOf(1000), "OPEN", OffsetDateTime.now()));
+
         mockMvc.perform(get("/api/v1/projects"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(org.hamcrest.Matchers.greaterThanOrEqualTo(2)))
@@ -37,7 +79,10 @@ class ProjectApiIntegrationTest {
 
     @Test
     void getProjectDetail_returnsProjectDetail() throws Exception {
-        String projectId = "2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20";
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        Project project = projectRepository.save(Project.restore(UUID.randomUUID(), clientId, null, "Spring Boot API", "Desc", BigDecimal.valueOf(1000), "OPEN", OffsetDateTime.now()));
+        String projectId = project.id().toString();
+
         mockMvc.perform(get("/api/v1/projects/{projectId}/detail", projectId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(projectId))
@@ -47,7 +92,12 @@ class ProjectApiIntegrationTest {
 
     @Test
     void getAssignedProjects_returnsFreelancerWorkspaceProjects() throws Exception {
-        mockMvc.perform(get("/api/v1/freelancers/22222222-2222-2222-2222-222222222222/projects/assigned"))
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        UUID freelancerId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "freelancer@test.local", "Freelancer", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        projectRepository.save(Project.restore(UUID.randomUUID(), clientId, freelancerId, "Freelancer workspace rollout", "Desc", BigDecimal.valueOf(1000), "IN_PROGRESS", OffsetDateTime.now()));
+        projectRepository.save(Project.restore(UUID.randomUUID(), clientId, freelancerId, "Completed integration cleanup", "Desc", BigDecimal.valueOf(1000), "COMPLETED", OffsetDateTime.now()));
+
+        mockMvc.perform(get("/api/v1/freelancers/{freelancerId}/projects/assigned", freelancerId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[*].title", hasItems(
                         "Freelancer workspace rollout",
@@ -82,6 +132,9 @@ class ProjectApiIntegrationTest {
 
     @Test
     void createProject_returnsConflictForDuplicateTitle() throws Exception {
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        projectRepository.save(Project.restore(UUID.randomUUID(), clientId, null, "Spring Boot API", "Desc", BigDecimal.valueOf(1000), "OPEN", OffsetDateTime.now()));
+
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -112,6 +165,9 @@ class ProjectApiIntegrationTest {
 
     @Test
     void searchFreelancers_filtersBySkill() throws Exception {
+        userProfileRepository.save(UserProfile.restore(UUID.randomUUID(), "freelancer@skillmarket.local", "Freelancer One", "Bio", "FREELANCER", Set.of("java"), BigDecimal.ZERO, 0, OffsetDateTime.now()));
+        userProfileRepository.save(UserProfile.restore(UUID.randomUUID(), "asmith@skillmarket.local", "Alice Smith", "Bio", "FREELANCER", Set.of("react"), BigDecimal.ZERO, 0, OffsetDateTime.now()));
+
         mockMvc.perform(get("/api/v1/freelancers").param("skill", "java"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[*].email", hasItem("freelancer@skillmarket.local")));
@@ -123,7 +179,10 @@ class ProjectApiIntegrationTest {
 
     @Test
     void updateProfile_returnsUpdatedProfile() throws Exception {
-        mockMvc.perform(put("/api/v1/profiles/22222222-2222-2222-2222-222222222222")
+        UUID profileId = UUID.randomUUID();
+        userProfileRepository.save(UserProfile.restore(profileId, "demo@skillmarket.local", "Freelancer Demo", "Bio", "FREELANCER", Collections.emptySet(), BigDecimal.ZERO, 0, OffsetDateTime.now()));
+
+        mockMvc.perform(put("/api/v1/profiles/{profileId}", profileId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -162,23 +221,35 @@ class ProjectApiIntegrationTest {
 
     @Test
     void createOffer_returnsCreatedOffer() throws Exception {
-        mockMvc.perform(post("/api/v1/projects/2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20/offers")
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        Project project = projectRepository.save(Project.restore(UUID.randomUUID(), clientId, null, "Offer Project", "Desc", BigDecimal.valueOf(5000), "OPEN", OffsetDateTime.now()));
+        UUID freelancerId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "freelancer@test.local", "Freelancer", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+
+        mockMvc.perform(post("/api/v1/projects/{projectId}/offers", project.id())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+                        .content(("""
                                 {
-                                  "freelancerId": "22222222-2222-2222-2222-222222222222",
+                                  "freelancerId": "%s",
                                   "amount": 1900.0,
                                   "message": "I can deliver the API refinements this week."
                                 }
-                                """))
+                                """).formatted(freelancerId)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.projectId").value("2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20"))
+                .andExpect(jsonPath("$.projectId").value(project.id().toString()))
                 .andExpect(jsonPath("$.status").value("PENDING"));
     }
 
     @Test
     void getProjectTasks_returnsWorkspaceTasks() throws Exception {
-        mockMvc.perform(get("/api/v1/projects/99999999-9999-9999-9999-999999999999/tasks"))
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        UUID creatorId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "creator@test.local", "Creator", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        UUID assigneeId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "assignee@test.local", "Assignee", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        UUID projectId = projectRepository.save(Project.restore(UUID.randomUUID(), clientId, assigneeId, "Task Project", "Desc", BigDecimal.valueOf(1000), "IN_PROGRESS", OffsetDateTime.now())).id();
+        
+        taskRepository.save(Task.createNew(projectId, assigneeId, creatorId, "Design API breakdown", "Desc", OffsetDateTime.now()));
+        taskRepository.save(Task.createNew(projectId, assigneeId, creatorId, "Review acceptance criteria", "Desc", OffsetDateTime.now()));
+
+        mockMvc.perform(get("/api/v1/projects/{projectId}/tasks", projectId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[*].title", hasItems("Design API breakdown", "Review acceptance criteria")));
@@ -186,41 +257,65 @@ class ProjectApiIntegrationTest {
 
     @Test
     void createProjectTask_returnsCreatedTask() throws Exception {
-        mockMvc.perform(post("/api/v1/projects/99999999-9999-9999-9999-999999999999/tasks")
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        UUID assigneeId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "assignee@test.local", "Assignee", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        UUID projectId = projectRepository.save(Project.restore(UUID.randomUUID(), clientId, assigneeId, "Task Project", "Desc", BigDecimal.valueOf(1000), "IN_PROGRESS", OffsetDateTime.now())).id();
+
+        mockMvc.perform(post("/api/v1/projects/{projectId}/tasks", projectId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+                        .content(("""
                                 {
-                                  "creatorUserId": "11111111-1111-1111-1111-111111111111",
-                                  "assigneeUserId": "22222222-2222-2222-2222-222222222222",
+                                  "creatorUserId": "%s",
+                                  "assigneeUserId": "%s",
                                   "title": "Set up task comments",
                                   "description": "Add the first comment thread support."
                                 }
-                                """))
+                                """).formatted(clientId, assigneeId)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("TODO"))
-                .andExpect(jsonPath("$.assigneeUserId").value("22222222-2222-2222-2222-222222222222"));
+                .andExpect(jsonPath("$.assigneeUserId").value(assigneeId.toString()));
     }
 
     @Test
     void updateProjectTask_returnsUpdatedTask() throws Exception {
-        mockMvc.perform(put("/api/v1/projects/99999999-9999-9999-9999-999999999999/tasks/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        UUID assigneeId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "assignee@test.local", "Assignee", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        UUID projectId = projectRepository.save(Project.restore(UUID.randomUUID(), clientId, assigneeId, "Task Project", "Desc", BigDecimal.valueOf(1000), "IN_PROGRESS", OffsetDateTime.now())).id();
+        Task task = taskRepository.save(Task.createNew(projectId, assigneeId, clientId, "Design API breakdown", "Desc", OffsetDateTime.now()));
+        
+        UUID newAssigneeId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "new_assignee@test.local", "New Assignee", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        // Since the new assignee must also be a participant (the assigned freelancer), 
+        // we should probably just use the existing participants or update the project's assigned freelancer.
+        // For simplicity of this test, let's use the clientId as the new assignee if the domain allows it, 
+        // OR better, create another freelancer and assign them to the project first? 
+        // Actually, the domain says only the assigned freelancer or the client can be participants.
+        
+        mockMvc.perform(put("/api/v1/projects/{projectId}/tasks/{taskId}", projectId, task.id())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+                        .content(("""
                                 {
-                                  "assigneeUserId": "11111111-1111-1111-1111-111111111111",
+                                  "assigneeUserId": "%s",
                                   "title": "Design API breakdown reviewed",
                                   "description": "Task DTOs and workspace endpoints are drafted.",
                                   "status": "IN_REVIEW"
                                 }
-                                """))
+                                """).formatted(clientId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("IN_REVIEW"))
-                .andExpect(jsonPath("$.assigneeUserId").value("11111111-1111-1111-1111-111111111111"));
+                .andExpect(jsonPath("$.assigneeUserId").value(clientId.toString()));
     }
 
     @Test
     void getTaskComments_returnsClientAndFreelancerConversation() throws Exception {
-        mockMvc.perform(get("/api/v1/projects/99999999-9999-9999-9999-999999999999/tasks/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/comments"))
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        UUID assigneeId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "assignee@test.local", "Assignee", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        UUID projectId = projectRepository.save(Project.restore(UUID.randomUUID(), clientId, assigneeId, "Task Project", "Desc", BigDecimal.valueOf(1000), "IN_PROGRESS", OffsetDateTime.now())).id();
+        Task task = taskRepository.save(Task.createNew(projectId, assigneeId, clientId, "Task", "Desc", OffsetDateTime.now()));
+        
+        taskCommentRepository.save(TaskComment.createNew(task.id(), clientId, "Please keep the workflow close to Jira columns.", OffsetDateTime.now()));
+        taskCommentRepository.save(TaskComment.createNew(task.id(), assigneeId, "Understood. I will keep the first version lean.", OffsetDateTime.now().plusMinutes(1)));
+
+        mockMvc.perform(get("/api/v1/projects/{projectId}/tasks/{taskId}/comments", projectId, task.id()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[*].message", hasItems(
@@ -231,38 +326,30 @@ class ProjectApiIntegrationTest {
 
     @Test
     void createTaskComment_returnsCreatedComment() throws Exception {
-        mockMvc.perform(post("/api/v1/projects/99999999-9999-9999-9999-999999999999/tasks/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/comments")
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        UUID assigneeId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "assignee@test.local", "Assignee", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        UUID projectId = projectRepository.save(Project.restore(UUID.randomUUID(), clientId, assigneeId, "Task Project", "Desc", BigDecimal.valueOf(1000), "IN_PROGRESS", OffsetDateTime.now())).id();
+        Task task = taskRepository.save(Task.createNew(projectId, assigneeId, clientId, "Task", "Desc", OffsetDateTime.now()));
+        
+        mockMvc.perform(post("/api/v1/projects/{projectId}/tasks/{taskId}/comments", projectId, task.id())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+                        .content(("""
                                 {
-                                  "authorUserId": "22222222-2222-2222-2222-222222222222",
+                                  "authorUserId": "%s",
                                   "message": "I added the task board contract and repository flow."
                                 }
-                                """))
+                                """).formatted(assigneeId)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.authorUserId").value("22222222-2222-2222-2222-222222222222"))
+                .andExpect(jsonPath("$.authorUserId").value(assigneeId.toString()))
                 .andExpect(jsonPath("$.message").value("I added the task board contract and repository flow."));
     }
 
     @Test
     void updateProject_returnsUpdatedProject() throws Exception {
-        String createProjectResponse = mockMvc.perform(post("/api/v1/projects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "title": "Project Update %s",
-                                  "description": "Initial description.",
-                                  "budget": 2000.0
-                                }
-                                """.formatted(UUID.randomUUID())))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        Project project = projectRepository.save(Project.createNew(clientId, "Initial Title", "Initial Desc", BigDecimal.valueOf(2000), OffsetDateTime.now()));
 
-        String projectId = createProjectResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
-
-        mockMvc.perform(put("/api/v1/projects/" + projectId)
+        mockMvc.perform(put("/api/v1/projects/" + project.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -278,136 +365,71 @@ class ProjectApiIntegrationTest {
 
     @Test
     void getProjectOffers_returnsSubmittedOffers() throws Exception {
-        String createProjectResponse = mockMvc.perform(post("/api/v1/projects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "title": "Offer Listing %s",
-                                  "description": "Offer list test.",
-                                  "budget": 2400.0
-                                }
-                                """.formatted(UUID.randomUUID())))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        Project project = projectRepository.save(Project.createNew(clientId, "Offer Listing Project", "Desc", BigDecimal.valueOf(2400), OffsetDateTime.now()));
+        UUID freelancerId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "freelancer@test.local", "Freelancer", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
 
-        String projectId = createProjectResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+        offerRepository.save(Offer.createNew(project.id(), freelancerId, BigDecimal.valueOf(1750), "Listing test offer.", OffsetDateTime.now()));
 
-        mockMvc.perform(post("/api/v1/projects/" + projectId + "/offers")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "freelancerId": "22222222-2222-2222-2222-222222222222",
-                                  "amount": 1750.0,
-                                  "message": "Listing test offer."
-                                }
-                                """))
-                .andExpect(status().isCreated());
-
-        mockMvc.perform(get("/api/v1/projects/" + projectId + "/offers"))
+        mockMvc.perform(get("/api/v1/projects/" + project.id() + "/offers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[*].message", hasItem("Listing test offer.")));
     }
 
     @Test
     void deleteOffer_returnsNoContentForPendingOffer() throws Exception {
-        String response = mockMvc.perform(post("/api/v1/projects/2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20/offers")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "freelancerId": "22222222-2222-2222-2222-222222222222",
-                                  "amount": 2100.0,
-                                  "message": "Cancel test offer."
-                                }
-                                """))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        Project project = projectRepository.save(Project.restore(UUID.randomUUID(), clientId, null, "Delete Offer Project", "Desc", BigDecimal.valueOf(5000), "OPEN", OffsetDateTime.now()));
+        UUID freelancerId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "freelancer@test.local", "Freelancer", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        Offer offer = offerRepository.save(Offer.createNew(project.id(), freelancerId, BigDecimal.valueOf(2100), "Cancel test offer.", OffsetDateTime.now()));
 
-        String offerId = response.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
-
-        mockMvc.perform(delete("/api/v1/projects/2b94fbc8-86bc-4d7f-b8ba-e9bb89ad4e20/offers/" + offerId))
+        mockMvc.perform(delete("/api/v1/projects/{projectId}/offers/{offerId}", project.id(), offer.id()))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void acceptOffer_returnsAcceptedOfferAndRejectsRemainingPendingOffers() throws Exception {
-        String createProjectResponse = mockMvc.perform(post("/api/v1/projects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "title": "Offer Decision %s",
-                                  "description": "Accept offer test.",
-                                  "budget": 3100.0
-                                }
-                                """.formatted(UUID.randomUUID())))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        String projectId = createProjectResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        Project project = projectRepository.save(Project.createNew(clientId, "Offer Decision Project", "Desc", BigDecimal.valueOf(3100), OffsetDateTime.now()));
+        
+        UUID f1 = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "f1@test.local", "F1", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        UUID f2 = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "f2@test.local", "F2", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        
+        Offer firstOffer = offerRepository.save(Offer.createNew(project.id(), f1, BigDecimal.valueOf(1900), "First offer.", OffsetDateTime.now()));
+        offerRepository.save(Offer.createNew(project.id(), f2, BigDecimal.valueOf(1950), "Second offer.", OffsetDateTime.now().plusMinutes(1)));
 
-        String firstOfferResponse = mockMvc.perform(post("/api/v1/projects/" + projectId + "/offers")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "freelancerId": "22222222-2222-2222-2222-222222222222",
-                                  "amount": 1900.0,
-                                  "message": "First offer."
-                                }
-                                """))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        String firstOfferId = firstOfferResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
-
-        mockMvc.perform(post("/api/v1/projects/" + projectId + "/offers")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "freelancerId": "22222222-2222-2222-2222-222222222222",
-                                  "amount": 1950.0,
-                                  "message": "Second offer."
-                                }
-                                """))
-                .andExpect(status().isCreated());
-
-        mockMvc.perform(post("/api/v1/projects/" + projectId + "/offers/" + firstOfferId + "/accept"))
+        mockMvc.perform(post("/api/v1/projects/" + project.id() + "/offers/" + firstOffer.id() + "/accept"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ACCEPTED"));
 
-        mockMvc.perform(get("/api/v1/projects/" + projectId + "/offers"))
+        mockMvc.perform(get("/api/v1/projects/" + project.id() + "/offers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[*].status", hasItems("ACCEPTED", "REJECTED")));
     }
 
     @Test
     void createRating_returnsCreatedRating() throws Exception {
-        mockMvc.perform(post("/api/v1/projects/44444444-4444-4444-4444-444444444444/ratings")
+        UUID clientId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "client@test.local", "Client", UserRole.CLIENT, Set.of(), OffsetDateTime.now())).id();
+        UUID freelancerId = userProfileRepository.save(UserProfile.createNew(UUID.randomUUID(), "freelancer@test.local", "Freelancer", UserRole.FREELANCER, Set.of(), OffsetDateTime.now())).id();
+        UUID projectId = projectRepository.save(Project.restore(UUID.randomUUID(), clientId, freelancerId, "Rating Project", "Desc", BigDecimal.valueOf(1000), "COMPLETED", OffsetDateTime.now())).id();
+
+        mockMvc.perform(post("/api/v1/projects/{projectId}/ratings", projectId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+                        .content(("""
                                 {
-                                  "clientId": "11111111-1111-1111-1111-111111111111",
-                                  "freelancerId": "22222222-2222-2222-2222-222222222222",
+                                  "clientId": "%s",
+                                  "freelancerId": "%s",
                                   "score": 5,
                                   "comment": "Great delivery and communication."
                                 }
-                                """))
+                                """).formatted(clientId, freelancerId)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.score").value(5))
-                .andExpect(jsonPath("$.freelancerId").value("22222222-2222-2222-2222-222222222222"));
+                .andExpect(jsonPath("$.freelancerId").value(freelancerId.toString()));
     }
 
     @Test
     void getMyProjects_returnsUserParticipatingProjects() throws Exception {
-        // Since we cannot easily mock the security context in this integration test
-        // and have it picked up by AuthenticatedUserProvider without more configuration,
-        // we will test that it returns an empty list for unauthenticated users (as per our updated controller)
-        // AND we'll verify the logic via existing projects if we knew their IDs, but those are random.
-        
         mockMvc.perform(get("/api/v1/projects/my"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
